@@ -1,0 +1,53 @@
+This is a MERN project.
+
+Tech STACK: 
+Frontend: ReactJS, TailwindCSS, Redux, Axios
+Backend: NodeJS, Express, Multer, MongoDB, Mongoose, Postman(for testing APIs)
+
+Frontend flow:
+App.jsx: It contains routes to different pages in the application.
+Modular Structure: The component imports various modules such as Header, ToastContainer, and others, promoting a modular architecture that enhances code organization and maintainability. Each module encapsulates specific functionality, facilitating code reuse and modularity.
+
+Routing with React Router: Leveraging Route and Routes components from react-router-dom, the application defines the navigation hierarchy and associates URL paths with corresponding components. This declarative approach to routing enables seamless navigation between different views and pages within the application.
+
+Dynamic Loading with Suspense: The inclusion of Suspense component with a fallback spinner (MainSpinner) ensures a smooth user experience by providing visual feedback during asynchronous data loading. This progressive loading strategy enhances perceived performance and user engagement, particularly in scenarios involving network requests or lazy-loaded components.
+
+User Authentication and Authorization: Through the integration of Redux for state management and useSelector and useDispatch hooks, the application manages user authentication state effectively. The useEffect hook retrieves user data from local storage upon component mount, populating the Redux store and ensuring seamless user authentication across sessions.
+
+Protected Routes: The implementation of ProtectedRoute and AdminRoute components facilitates secure access to restricted areas of the application, such as user profiles and administrative dashboards. By verifying user authentication and authorization status, unauthorized access is prevented, enhancing application security and user privacy.
+
+Error Handling with Toast Notifications: The integration of ToastContainer from react-toastify library enables graceful error handling and notification display. Toast notifications provide unobtrusive feedback to users, alerting them to successful actions or errors encountered during application usage, thereby enhancing user experience.
+
+///////////////////////////////////////////////////
+Cart.jsx: It handles logic and UI for Cart Page.
+
+Quantity Adjustment and Removal:
+Users can easily adjust the quantity of items in the cart using intuitive controls (+/- buttons). Additionally, the ability to remove items from the cart with a single click enhances flexibility and convenience, enabling users to refine their shopping preferences effortlessly.
+
+Real-time Price Calculation:
+Utilizing the useEffect hook, the component recalculates the total price of items in the cart whenever the cart items array changes. This ensures accurate pricing information is displayed to users, reflecting any changes made to quantities or item selections in real-time.
+
+Order Summary and Checkout Process:
+The component presents an order summary section, detailing the subtotal and total price of items in the cart. Users are provided with clear pricing information, fostering transparency and trust in the purchasing process. Furthermore, the checkout process is seamlessly integrated, with conditional rendering based on user authentication status.
+
+User Authentication and Navigation:
+For authenticated users, a "Checkout" button is prominently displayed, directing them to the shipping page to proceed with the order. Conversely, non-authenticated users are prompted to log in before initiating the checkout process, facilitating seamless user authentication and navigation.
+
+/////////////////////////////////////////////////////////////
+Dashboard.jsx - It allows admin to manage customers, products and orders.
+
+State Management:
+State is managed using the useState hook, specifically for tracking the currently selected component.
+Whenever a navigation action occurs, the setCurrentComponent function updates the state, triggering a re-render of the component.
+
+Handling Navigation:
+Navigation within the dashboard is handled through the DashboardSidebar component.
+When a navigation link is clicked, the handleNavigate function updates the currentComponent state, triggering the rendering of the corresponding component.
+
+Flexbox Layout:
+The component utilizes a flexbox layout (flex and flex-1) to ensure proper alignment and distribution of content within the dashboard.
+This layout approach allows for easy customization and responsiveness across different screen sizes.
+
+CSS Styling:
+The component applies background color (bg-green-50) to maintain visual consistency within the dashboard.
+Additional padding (p-4) is applied to the main content area to enhance spacing and readability.
