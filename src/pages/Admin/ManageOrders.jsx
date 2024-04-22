@@ -5,6 +5,7 @@ import { deleteOrder, getAllOrders } from "../../api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
+import { FiShoppingBag } from "react-icons/fi";
 
 const ManageOrders = () => {
   const [loading, setLoading] = useState(true);
@@ -49,7 +50,12 @@ const ManageOrders = () => {
             <ClipLoader size={50} />
           </span>
         </div>
-      ) : (
+      ) : orders?.length === 0 ? (<div className="bg-green-50 w-full h-[90vh] flex flex-col justify-start items-center gap-4 pt-20">
+      <FiShoppingBag size={80} className="text-green-500" />{" "}
+      <span className="text-green-900 font-bold text-2xl">
+        No Recent Orders
+      </span>
+    </div>) : (
         <div className="overflow-x-auto max-w-[800px]">
           <table className="min-w-full divide-y divide-green-700">
             <thead className="bg-green-300">

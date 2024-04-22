@@ -1,6 +1,4 @@
-export const adminIds = ["660668e12da8afc6a4551685", "66083e333ab2c1af1bc622d9", "660d797c3536d5af6bbaddde",
-"66125126b05e9497ddddce33",
-"6623baa0cd87f1416ed0637b"];
+export const adminIds = ["6625f5b8bba83b7de30ea679"];
 
 export const Logo = "/src/assets/logo_e.png";
 
