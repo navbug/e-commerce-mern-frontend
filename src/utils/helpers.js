@@ -1,7 +1,7 @@
 export const adminIds = ["6625f5b8bba83b7de30ea679"];
 
 export const Logo = "/src/assets/logo_e.png";
-
+ 
 export const categories = [
   {
     title: "Earbuds",
