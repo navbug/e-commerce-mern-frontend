@@ -17,7 +17,6 @@ import {
   ProductDetails,
   Profile,
   Register,
-  Wishlist,
 } from "./pages";
 import MainSpinner from "./components/MainSpinner";
 import { useDispatch, useSelector } from "react-redux";
