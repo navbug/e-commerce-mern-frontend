@@ -16,4 +16,3 @@ export { default as ManageOrders } from "./Admin/ManageOrders";
 export { default as ManageCustomers } from "./Admin/ManageCustomers";
 export { default as OrderDetails } from "./OrderDetails";
 export { default as Profile } from "./Profile";
-export { default as Wishlist } from "./Wishlist";
