@@ -55,7 +55,6 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/order/:orderId" element={<OrderDetails />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/wishlist" element={<Wishlist />} />
 
           {/* Admin Routes(Protected) */}
           {user && (
