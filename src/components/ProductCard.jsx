@@ -6,38 +6,16 @@ import { FaShippingFast } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/reducers/cartReducer";
 import { toast } from "react-toastify";
-import { setWishlist } from "../redux/reducers/userReducer";
-import { updateWishlist } from "../api";
 
 const ProductCard = ({ product }) => {
   const cartItems = useSelector((state) => state.cart.cartItems);
-  const { user, wishlist } = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleCardClick = () => {
     navigate(`/products/${product._id}`);
   };
-
-  // const handleWishlistProduct = async (e, productId) => {
-  //   e.stopPropagation();
-
-  //   // console.log(productId);
-  //   const inWishlist = wishlist.find((item) => {
-  //     // console.log(item._id, productId);
-  //     return item._id === productId;
-  //   });
-  //   if(inWishlist) {
-  //     let wishlistedProducts = await updateWishlist(productId, user._id, true);
-  //     dispatch(setWishlist(wishlistedProducts));
-  //     toast.success("Product removed from wishlist");
-  //   } else {
-  //     let wishlistedProducts = await updateWishlist(productId, user._id, false);
-  //     dispatch(setWishlist(wishlistedProducts));
-  //     toast.success("Product added to wishlist");
-  //   }
-
-  // };
 
   const handleAddToCart = (e, product) => {
     e.stopPropagation();
@@ -78,9 +56,7 @@ const ProductCard = ({ product }) => {
               {calculateAverageRating(product.reviews)}
             </span>
           </div>
-          {/* <div onClick={(e) => handleWishlistProduct(e, product._id)} className="">
-            {wishlist.find((item) => item._id === product._id)? (<FaHeart color="red" />) : (<FaRegHeart color="red" />)}
-          </div> */}
+         
         </div>
         <div className="text-lg font-bold">{product.title}</div>
         <div className="text-md font-bold">₹{numWithCommas(product.price)}</div>
