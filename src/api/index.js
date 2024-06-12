@@ -37,24 +37,6 @@ export const getUserById = async (id) => {
   }
 };
 
-export const updateWishlist = async (productId, userId, notExist) => {
-  try {
-    const response = await axios.patch(
-      `${API_BASE_URL}/updateWishlist/${userId}`,
-      { productId: productId, notExist: notExist }
-    );
-    if (response.status === 200) {
-      return response.data.wishlist;
-    } else {
-      console.error("Failed to update wishlist:", response.status);
-      throw new Error("Failed to update wishlist");
-    }
-  } catch (error) {
-    console.error("Error updating wishlist:", error);
-    throw error;
-  }
-};
-
 export const deleteUser = async (id) => {
   try {
     const response = await axios.delete(
