@@ -53,7 +53,7 @@ const CheckOutForm = () => {
 
       toast.success("Payment successful");
       toast.success("Order placed successfully");
-      navigate("/orders");
+      navigate("/");
     }
     setIsProcessing(false);
   };
