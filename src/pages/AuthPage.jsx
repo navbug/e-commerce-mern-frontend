@@ -60,7 +60,7 @@ const AuthPage = () => {
                 htmlFor="email"
                 className="block text-md font-bold leading-6 text-green-900"
               >
-                Email address(<span className="text-xs">Demo Email: pagdi@raj.com"</span>)
+                Email address(<span className="text-xs">Demo Email: pagdi@raj.com</span>)
               </label>
               <div className="mt-2">
                 <input
@@ -82,7 +82,7 @@ const AuthPage = () => {
                   htmlFor="password"
                   className="block text-md font-bold leading-6 text-green-900"
                 >
-                  Password(<span className="text-xs">Demo Password: pagdi"</span>)
+                  Password(<span className="text-xs">Demo Password: pagdi</span>)
                 </label>
               </div>
               <div className="mt-2">
