@@ -26,11 +26,16 @@ import { adminIds } from "./utils/helpers";
 import Shipping from "./pages/Shipping";
 import Checkout from "./pages/Checkout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import OfflineBanner from "./components/OfflineBanner";
+import useOnlineStatus from "./hooks/useOnlineStatus";
 
 function App() {
   //Get user data from Redux store
   const {user} = useSelector((state) => state.user);
   const dispatch = useDispatch();
+
+  // Custom hook to track online/offline status
+  const isOnline = useOnlineStatus();
 
   useEffect(() => {
     //Get user data from local storage & set it to Redux store
@@ -42,6 +47,8 @@ function App() {
 
   return (
     <div className="">
+      <OfflineBanner isOnline={isOnline} />
+
       <Header />
       <Suspense fallback={<MainSpinner />}>
         <Routes>

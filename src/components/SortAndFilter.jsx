@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState, useMemo } from "react";
 import { Popover, Dialog, Transition } from "@headlessui/react";
 import { FaSort, FaAngleDown, FaCheck, FaFilter } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
@@ -7,7 +7,7 @@ import { calculateAverageRating, sortOptions } from "../utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { setProducts, setSortBy } from "../redux/reducers/productsReducer";
 
-const SortAndFilter = ({page}) => {
+const SortAndFilter = ({ page }) => {
   const [filterOpen, setFilterOpen] = useState(false);
   const { products, sortBy, searchKeyword, category } = useSelector(
     (state) => state.products
@@ -19,6 +19,33 @@ const SortAndFilter = ({page}) => {
     inStock: false,
   });
   const dispatch = useDispatch();
+
+  // Calculate active filters count
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    
+    // Check price range (only if different from defaults)
+    if (filterValues.price.min !== 1 || filterValues.price.max !== 20000) {
+      count++;
+    }
+    
+    // Check rating (only if greater than 0)
+    if (filterValues.rating > 0) {
+      count++;
+    }
+    
+    // Check fast delivery
+    if (filterValues.fastDelivery) {
+      count++;
+    }
+    
+    // Check in stock
+    if (filterValues.inStock) {
+      count++;
+    }
+    
+    return count;
+  }, [filterValues]);
 
   const handleGetAllProducts = async (
     sortBy,
@@ -43,11 +70,7 @@ const SortAndFilter = ({page}) => {
 
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
-
-    // Create a copy of the filterValues object
     const updatedFilters = { ...filterValues };
-
-    // Split the name into parts to handle nested objects
     const parts = name.split(".");
 
     if (name === "rating") {
@@ -59,27 +82,20 @@ const SortAndFilter = ({page}) => {
       });
       let avgRating = ratingSum / len;
       console.log(avgRating);
-
       updatedFilters[name] = value === "" ? undefined : avgRating;
     }
 
     if (type === "checkbox") {
-      // If it's a checkbox input
       updatedFilters[name] = checked;
     } else if (parts.length === 2) {
-      // If it's a nested object (like 'price.min' or 'price.max')
       const [objKey, key] = parts;
-      // Ensure price object exists in updatedFilters
       updatedFilters[objKey] = updatedFilters[objKey] || {};
-      // Update the specific key within the nested object
       updatedFilters[objKey][key] =
         value === "" ? undefined : parseFloat(value);
     } else {
-      // Otherwise, handle as a regular key-value pair
       updatedFilters[name] = value === "" ? undefined : value;
     }
 
-    // Set the updated state
     setFilterValues(updatedFilters);
     console.log(updatedFilters);
   };
@@ -89,31 +105,37 @@ const SortAndFilter = ({page}) => {
   }, [sortBy, searchKeyword, filterValues, category, page]);
 
   return (
-    <div className="flex justify-between items-center pl-5 pr-7 py-2 bg-green-50">
+    <div className="flex justify-between items-center px-8 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100">
       <div className="left">
-        <div
+        <button
           onClick={() => setFilterOpen(true)}
-          className="inline-flex items-end gap-x-1 text-sm font-semibold leading-6 text-green-900 cursor-pointer"
+          className="group inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-emerald-200 hover:border-emerald-300 relative"
         >
-          <span className="flex items-center gap-1 text-[16px] duration-160 hover:scale-105">
-            <FaFilter />
-            Filters:{" "}
+          <FaFilter className="text-emerald-600 group-hover:scale-110 transition-transform" />
+          <span className="text-sm font-semibold text-gray-700 group-hover:text-emerald-700">
+            Filters
           </span>
-          {/* <FaAngleDown className="h-5 w-5" aria-hidden="true" /> */}
-        </div>
-        {/* <span onClick={() => setFilterOpen(true)}>Filters: </span> */}
+          
+          {/* Active Filters Badge */}
+          {activeFiltersCount > 0 && (
+            <span className="absolute -top-2 -right-2 flex items-center justify-center w-6 h-6 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold rounded-full shadow-lg animate-pulse-slow">
+              {activeFiltersCount}
+            </span>
+          )}
+        </button>
+
         <Transition.Root show={filterOpen} as={Fragment}>
-          <Dialog as="div" className="relative z-10" onClose={setFilterOpen}>
+          <Dialog as="div" className="relative z-50" onClose={setFilterOpen}>
             <Transition.Child
               as={Fragment}
-              enter="ease-in-out duration-500"
+              enter="ease-in-out duration-300"
               enterFrom="opacity-0"
               enterTo="opacity-100"
-              leave="ease-in-out duration-500"
+              leave="ease-in-out duration-200"
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <div className="fixed inset-0 bg-green-50 bg-opacity-75 transition-opacity" />
+              <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm transition-opacity" />
             </Transition.Child>
 
             <div className="fixed inset-0 overflow-hidden">
@@ -121,49 +143,57 @@ const SortAndFilter = ({page}) => {
                 <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
                   <Transition.Child
                     as={Fragment}
-                    enter="transform transition ease-in-out duration-500 sm:duration-700"
+                    enter="transform transition ease-in-out duration-300"
                     enterFrom="translate-x-full"
                     enterTo="translate-x-0"
-                    leave="transform transition ease-in-out duration-500 sm:duration-700"
+                    leave="transform transition ease-in-out duration-200"
                     leaveFrom="translate-x-0"
                     leaveTo="translate-x-full"
                   >
-                    <Dialog.Panel className="pointer-events-auto relative w-screen max-w-[380px]">
+                    <Dialog.Panel className="pointer-events-auto relative w-screen max-w-md">
                       <Transition.Child
                         as={Fragment}
-                        enter="ease-in-out duration-500"
+                        enter="ease-in-out duration-300"
                         enterFrom="opacity-0"
                         enterTo="opacity-100"
-                        leave="ease-in-out duration-500"
+                        leave="ease-in-out duration-200"
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                       >
-                        <div className="absolute left-0 top-0 -ml-8 flex pr-2 pt-4 sm:-ml-10 sm:pr-4">
+                        <div className="absolute left-0 top-0 -ml-10 flex pr-2 pt-6">
                           <button
                             type="button"
-                            className="relative rounded-md text-red ring-2 ring-green-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-400"
+                            className="rounded-full bg-white p-2 text-gray-600 hover:text-gray-900 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
                             onClick={() => setFilterOpen(false)}
                           >
-                            <span className="absolute -inset-2.5" />
                             <span className="sr-only">Close panel</span>
-                            <IoClose className="h-7 w-7" color="darkgreen" />
+                            <IoClose className="h-6 w-6" />
                           </button>
                         </div>
                       </Transition.Child>
-                      <div className="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
-                        <div className="px-4 sm:px-6">
-                          <div className="left px-4 sm:px-6 flex flex-col gap-3">
-                            <div className="font-semibold leading-6 text-green-900 text-lg mb-3">
-                              Filters:
+
+                      <div className="flex h-full flex-col overflow-y-auto bg-white shadow-2xl">
+                        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-8">
+                          <Dialog.Title className="text-2xl font-bold text-white flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <FaFilter className="text-white/90" />
+                              Filter Products
                             </div>
-                            <div className="mb-4 text-green-900">
-                              <label
-                                htmlFor="price"
-                                className="block font-medium mb-2"
-                              >
-                                Price
-                              </label>
-                              <div className="flex items-center text-green-900">
+                            {activeFiltersCount > 0 && (
+                              <span className="flex items-center justify-center w-8 h-8 bg-white/20 backdrop-blur-sm text-white text-sm font-bold rounded-full">
+                                {activeFiltersCount}
+                              </span>
+                            )}
+                          </Dialog.Title>
+                        </div>
+
+                        <div className="flex-1 px-6 py-8 space-y-6">
+                          <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700 mb-3">
+                              Price Range
+                            </label>
+                            <div className="flex items-center gap-3">
+                              <div className="flex-1">
                                 <input
                                   type="number"
                                   id="price-min"
@@ -171,8 +201,11 @@ const SortAndFilter = ({page}) => {
                                   value={filterValues.price.min || ""}
                                   onChange={handleFilterChange}
                                   placeholder="Min"
-                                  className="w-1/2 mr-2 border-green-300 rounded-md shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50"
+                                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                                 />
+                              </div>
+                              <span className="text-gray-400 font-medium">—</span>
+                              <div className="flex-1">
                                 <input
                                   type="number"
                                   id="price-max"
@@ -180,107 +213,107 @@ const SortAndFilter = ({page}) => {
                                   value={filterValues.price.max || ""}
                                   onChange={handleFilterChange}
                                   placeholder="Max"
-                                  className="w-1/2 border-green-300 rounded-md shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50"
+                                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                                 />
                               </div>
                             </div>
-                            <div className="mb-4 text-green-900">
-                              <label
-                                htmlFor="rating"
-                                className="block font-medium mb-2"
-                              >
-                                Rating
-                              </label>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label
+                              htmlFor="rating"
+                              className="block text-sm font-semibold text-gray-700 mb-3"
+                            >
+                              Minimum Rating
+                            </label>
+                            <input
+                              type="number"
+                              id="rating"
+                              name="rating"
+                              value={filterValues.rating || ""}
+                              onChange={handleFilterChange}
+                              min="0"
+                              max="5"
+                              step="0.1"
+                              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                            />
+                          </div>
+
+                          <div className="space-y-4 pt-4 border-t border-gray-200">
+                            <div className="flex items-center">
                               <input
-                                type="number"
-                                id="rating"
-                                name="rating"
-                                value={filterValues.rating || ""}
+                                id="fastDelivery"
+                                name="fastDelivery"
+                                type="checkbox"
+                                checked={filterValues.fastDelivery}
                                 onChange={handleFilterChange}
-                                min="0"
-                                max="5"
-                                step="0.1"
-                                className="w-full border-green-300 rounded-md shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50"
+                                className="h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded cursor-pointer"
                               />
-                            </div>
-                            <div className="mb-4">
-                              <div className="flex items-center">
-                                <input
-                                  id="fastDelivery"
-                                  name="fastDelivery"
-                                  type="checkbox"
-                                  checked={filterValues.fastDelivery}
-                                  onChange={handleFilterChange}
-                                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-green-300 rounded"
-                                />
-                                <label
-                                  htmlFor="fastDelivery"
-                                  className="ml-2 block text-sm text-green-900 font-bold"
-                                >
-                                  Fast Delivery
-                                </label>
-                              </div>
-                            </div>
-                            <div className="mb-4">
-                              <div className="flex items-center">
-                                <input
-                                  id="inStock"
-                                  name="inStock"
-                                  type="checkbox"
-                                  checked={filterValues.inStock}
-                                  onChange={handleFilterChange}
-                                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-green-300 rounded"
-                                />
-                                <label
-                                  htmlFor="inStock"
-                                  className="ml-2 block text-sm text-green-900 font-bold"
-                                >
-                                  In Stock
-                                </label>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <button
-                                onClick={() => {
-                                  handleGetAllProducts(
-                                    sortBy,
-                                    true,
-                                    searchKeyword,
-                                    category,
-                                    page
-                                  );
-                                  setFilterOpen(false);
-                                  setFilterValues({
-                                    price: { min: 1, max: 20000 },
-                                    rating: 0,
-                                    fastDelivery: false,
-                                    inStock: false,
-                                  });
-                                }}
-                                className=" flex justify-between items-center gap-2 px-2 py-1  rounded-md border-green-700 border-2 cursor-pointer group duration-150 hover:bg-green-700 hover:shadow-md active:scale-95"
+                              <label
+                                htmlFor="fastDelivery"
+                                className="ml-3 text-sm font-medium text-gray-700 cursor-pointer"
                               >
-                                <p className="text-green-900 group-hover:text-white">
-                                  Reset Filters
-                                </p>
-                              </button>
-                              <button
-                                onClick={() => {
-                                  handleGetAllProducts(
-                                    sortBy,
-                                    false,
-                                    searchKeyword,
-                                    category,
-                                    page
-                                  );
-                                  setFilterOpen(false);
-                                }}
-                                className=" flex justify-between items-center gap-2 px-2 py-1  rounded-md border-green-700 border-2 cursor-pointer group duration-150 hover:bg-green-700 hover:shadow-md active:scale-95"
-                              >
-                                <p className="text-green-900 group-hover:text-white">
-                                  Apply Filters
-                                </p>
-                              </button>
+                                Fast Delivery Only
+                              </label>
                             </div>
+
+                            <div className="flex items-center">
+                              <input
+                                id="inStock"
+                                name="inStock"
+                                type="checkbox"
+                                checked={filterValues.inStock}
+                                onChange={handleFilterChange}
+                                className="h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded cursor-pointer"
+                              />
+                              <label
+                                htmlFor="inStock"
+                                className="ml-3 text-sm font-medium text-gray-700 cursor-pointer"
+                              >
+                                In Stock Only
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="border-t border-gray-200 px-6 py-6 bg-gray-50">
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => {
+                                handleGetAllProducts(
+                                  sortBy,
+                                  true,
+                                  searchKeyword,
+                                  category,
+                                  page
+                                );
+                                setFilterOpen(false);
+                                setFilterValues({
+                                  price: { min: 1, max: 20000 },
+                                  rating: 0,
+                                  fastDelivery: false,
+                                  inStock: false,
+                                });
+                              }}
+                              className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-100 active:scale-95 transition-all duration-200"
+                            >
+                              Reset
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleGetAllProducts(
+                                  sortBy,
+                                  false,
+                                  searchKeyword,
+                                  category,
+                                  page
+                                );
+                                setFilterOpen(false);
+                              }}
+                              className="flex-1 px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg font-semibold text-white hover:from-emerald-700 hover:to-teal-700 active:scale-95 transition-all duration-200 shadow-lg"
+                            >
+                              Apply Filters
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -295,11 +328,12 @@ const SortAndFilter = ({page}) => {
 
       <div className="right">
         <Popover className="relative">
-          <Popover.Button className="inline-flex items-end gap-x-1 text-sm font-semibold text-green-900">
-            <span className="flex items-center gap-1 text-[16px] duration-160 hover:scale-105">
-              <FaSort />
-              Sort by: <FaAngleDown className="h-5 w-5" aria-hidden="true" />
+          <Popover.Button className="group inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-emerald-200 hover:border-emerald-300">
+            <FaSort className="text-emerald-600 group-hover:scale-110 transition-transform" />
+            <span className="text-sm font-semibold text-gray-700 group-hover:text-emerald-700">
+              Sort by
             </span>
+            <FaAngleDown className="h-4 w-4 text-gray-500" aria-hidden="true" />
           </Popover.Button>
 
           <Transition
@@ -311,11 +345,12 @@ const SortAndFilter = ({page}) => {
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 translate-y-1"
           >
-            <Popover.Panel className="absolute -right-4 z-10 px-4">
-              <div className="w-[220px] max-w-sm flex-auto overflow-hidden rounded-xl bg-white text-sm leading-6 shadow-lg ring-1 ring-gray-900/5">
+            <Popover.Panel className="absolute right-0 z-10 mt-3 w-64">
+              <div className="overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-gray-900/5">
                 <div className="p-2">
                   {sortOptions.map((option, index) => (
-                    <div
+                    <Popover.Button
+                      key={index}
                       onClick={() => {
                         handleGetAllProducts(
                           option.name,
@@ -325,24 +360,18 @@ const SortAndFilter = ({page}) => {
                         );
                         dispatch(setSortBy(option.name));
                       }}
-                      key={index}
-                      className="group relative flex gap-x-6 rounded-md p-4 hover:bg-green-50 justify-between"
+                      className="w-full group relative flex items-center justify-between gap-x-4 rounded-lg px-4 py-3 hover:bg-emerald-50 transition-colors duration-150"
                     >
-                      <Popover.Button>
-                        <div className="font-semibold text-green-900">
-                          {option.name}
-                          <span className="absolute inset-0" />
-                        </div>
-                      </Popover.Button>
-                      <div>
-                        {sortBy && option.name === sortBy && (
-                          <FaCheck
-                            className="text-green-700"
-                            aria-hidden="true"
-                          />
-                        )}
-                      </div>
-                    </div>
+                      <span className="font-medium text-gray-700 group-hover:text-emerald-700">
+                        {option.name}
+                      </span>
+                      {sortBy && option.name === sortBy && (
+                        <FaCheck
+                          className="text-emerald-600"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </Popover.Button>
                   ))}
                 </div>
               </div>
@@ -350,6 +379,21 @@ const SortAndFilter = ({page}) => {
           </Transition>
         </Popover>
       </div>
+
+      <style jsx>{`
+        @keyframes pulse-slow {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.7;
+          }
+        }
+
+        .animate-pulse-slow {
+          animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+      `}</style>
     </div>
   );
 };

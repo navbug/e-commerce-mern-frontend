@@ -1,199 +1,416 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { API_BASE_URL } from "../../../config";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../../../config";
 import { getProductById, updateProduct } from "../../api";
-import { FaUpload } from "react-icons/fa6";
+import {
+  Upload,
+  Package,
+  DollarSign,
+  Box,
+  FileText,
+  Zap,
+  Tag,
+  X,
+  Save,
+  ArrowLeft,
+  Loader2,
+} from "lucide-react";
 
 const EditProduct = () => {
   const [image, setImage] = useState({ preview: "", data: "" });
-  const [product, setProduct] = useState({});
-  const [updatedProduct, setUpdatedProduct] = useState({});
-  const { productId } = useParams();
+  const [loading, setLoading] = useState(false);
+  const [fetchingProduct, setFetchingProduct] = useState(true);
+  const [product, setProduct] = useState({
+    title: "",
+    price: "",
+    stock: "",
+    desc: "",
+    ratings: 0,
+    fastDelivery: false,
+    category: "",
+    images: "",
+  });
+
   const navigate = useNavigate();
+  const { productId } = useParams();
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setFetchingProduct(true);
+        const fetchedProduct = await getProductById(productId);
+        setProduct(fetchedProduct);
+        // Set existing image as preview
+        if (fetchedProduct.images) {
+          setImage({ preview: fetchedProduct.images, data: "" });
+        }
+        setFetchingProduct(false);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        toast.error("Failed to fetch product");
+        navigate("/admin/dashboard");
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
 
   const handleChange = (e, field) => {
-    setUpdatedProduct({ ...updatedProduct, [field]: e.target.value });
+    setProduct({ ...product, [field]: e.target.value });
   };
 
   const handleCheckboxChange = (e, field) => {
-    setUpdatedProduct({ ...updatedProduct, [field]: e.target.checked });
+    setProduct({ ...product, [field]: e.target.checked });
   };
 
   const handleFileSelect = (event) => {
     event.preventDefault();
-    const img = {
-      preview: URL.createObjectURL(event.target.files[0]),
-      data: event.target.files[0],
-    };
-    setImage(img);
+    const file = event.target.files[0];
+
+    if (file) {
+      if (file.size > 5000000) {
+        toast.error("File size must be less than 5MB");
+        return;
+      }
+
+      const img = {
+        preview: URL.createObjectURL(file),
+        data: file,
+      };
+      setImage(img);
+    }
   };
 
-  const handleFileUpload = async (e) => {
+  const removeImage = () => {
+    setImage({ preview: "", data: "" });
+  };
+
+  const handleFileUpload = async () => {
     let formData = new FormData();
     formData.append("file", image.data);
-
     const res = await axios.post(`${API_BASE_URL}/uploadFile`, formData);
-    return res.data.fileName;
-  };
-
-  const addImage = async () => {
-    const fileName = await handleFileUpload();
-    const imageUrl = `${API_BASE_URL}/files/${fileName}`;
-
-    return imageUrl;
-  };
-
-  const getProduct = async () => {
-    try {
-      const fetchedProduct = await getProductById(productId);
-      
-      setProduct(fetchedProduct);
-      setUpdatedProduct(fetchedProduct);
-    } catch (error) {
-      console.error("Error fetching product:", error);
-      toast.error("Error fetching product");
-    }
+    return res;
   };
 
   const handleUpdateProduct = async (e) => {
     e.preventDefault();
-    try {
-      const imageUrl = await addImage();
-      setUpdatedProduct((prevState) => ({ ...prevState, images: imageUrl }));
-      await updateProduct(productId, { ...updatedProduct, images: imageUrl });
 
-      setUpdatedProduct({});
+    if (!product.title || !product.price || !product.stock || !product.category) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      let productData = { ...product };
+
+      // Only upload new image if one was selected
+      if (image.data) {
+        const imgRes = await handleFileUpload();
+        productData.images = `${API_BASE_URL}/files/${imgRes.data.fileName}`;
+      }
+
+      await updateProduct(productId, productData);
       toast.success("Product updated successfully");
       navigate("/admin/dashboard");
     } catch (error) {
       console.error("Error updating product:", error);
       toast.error("Failed to update product");
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    getProduct();
-  }, []);
-
-  return (
-    <div className="w-full h-full bg-green-50 flex flex-col justify-center items-center">
-      <div className="flex justify-center items-center">
-        <div className="w-[70vw] flex justify-between items-center py-6">
-          <h2 className="text-xl text-green-800 font-semibold">
-            Update Product:{" "}
-            <span className="text-red-600">{product.title}</span>
-          </h2>
-          <button
-            onClick={handleUpdateProduct}
-            className="flex w-[170px] justify-center items-center rounded-md bg-green-600 px-3 py-1.5 text-md font-semibold leading-6 text-white shadow-md hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 gap-2 duration-150 transition-all hover:scale-[103%] active:scale-[97%]"
-          >
-            Update Product
-          </button>
+  if (fetchingProduct) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <Loader2 className="w-12 h-12 text-green-600 animate-spin" />
+          <p className="mt-4 text-green-800 font-semibold">Loading product...</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Product updatation form  */}
-      <form className="mt-10 w-[800px] flex flex-col items-center text-green-700 font-semibold pb-6">
-        <h1>Product Information</h1>
-        <div class="mt-4 flex justify-start items-center gap-4">
-          <label htmlFor="title">Title:</label>
-          <input
-            type="text"
-            name="title"
-            value={updatedProduct?.title}
-            onChange={(e) => handleChange(e, "title")}
-            className={`block w-[200px] md:w-[300px] rounded-md border-0 py-1.5 text-green-950 shadow-md ring-1 ring-inset ring-green-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-bold-600 sm:text-md sm:leading-6`}
-          />
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8 px-4 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-700"></div>
+      </div>
+
+      <div className="max-w-4xl mx-auto relative z-10">
+        {/* Header */}
+        <div className="mb-8">
+          <button
+            onClick={() => navigate("/admin/dashboard")}
+            className="mb-4 flex items-center gap-2 text-green-700 hover:text-green-800 font-semibold transition-all duration-200 hover:translate-x-[-4px]"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back to Dashboard
+          </button>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Package className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">
+                  Edit Product
+                </h1>
+                <p className="text-gray-600 text-sm">
+                  Update product information
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="mt-4 flex justify-start items-center gap-4">
-          <label htmlFor="category">Category:</label>
-          <input
-            type="text"
-            name="category"
-            value={updatedProduct?.category}
-            onChange={(e) => handleChange(e, "category")}
-            className={`block w-[200px] md:w-[300px]  rounded-md border-0 py-1.5 text-green-950 shadow-md ring-1 ring-inset ring-green-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-bold-600 sm:text-md sm:leading-6`}
-          />
-        </div>
+        {/* Form Card */}
+        <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-green-100 overflow-hidden">
+          <form onSubmit={handleUpdateProduct}>
+            <div className="p-8 space-y-6">
+              {/* Product Image Upload */}
+              <div className="flex justify-center">
+                <div className="relative group">
+                  {!image.preview ? (
+                    <label className="cursor-pointer">
+                      <div className="w-64 h-64 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-100 border-2 border-dashed border-green-300 flex flex-col items-center justify-center hover:border-green-500 hover:bg-green-50 transition-all duration-300 group-hover:scale-105">
+                        <Upload className="w-12 h-12 text-green-600 mb-4 group-hover:scale-110 transition-transform" />
+                        <p className="text-lg font-semibold text-gray-700">
+                          Upload Product Image
+                        </p>
+                        <p className="text-sm text-gray-500 mt-2">
+                          PNG, JPG, WEBP (Max 5MB)
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".jpeg,.jpg,.png,.webp,.svg"
+                        onChange={handleFileSelect}
+                      />
+                    </label>
+                  ) : (
+                    <div className="relative w-64 h-64">
+                      <img
+                        src={image.preview}
+                        className="w-full h-full object-cover rounded-2xl border-4 border-white shadow-xl"
+                        alt="Product preview"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute -top-2 -right-2 w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transform transition-all duration-200 hover:scale-110 active:scale-95"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                      {!image.data && (
+                        <div className="absolute bottom-2 right-2 px-3 py-1 bg-green-500 text-white text-xs rounded-full font-semibold">
+                          Current Image
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
 
-        <div class="mt-4 flex justify-start items-center gap-4">
-          <label htmlFor="price">Price:</label>
-          <input
-            type="number"
-            name="price"
-            value={updatedProduct?.price}
-            onChange={(e) => handleChange(e, "price")}
-            className={`block w-[130px] rounded-md border-0 py-1.5 text-green-950 shadow-md ring-1 ring-inset ring-green-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-bold-600 sm:text-md sm:leading-6`}
-          />
+              {/* Product Title */}
+              <div className="group">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Product Title <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Package className="h-5 w-5 text-gray-400 group-focus-within:text-green-600 transition-colors duration-200" />
+                  </div>
+                  <input
+                    type="text"
+                    name="title"
+                    value={product.title}
+                    onChange={(e) => handleChange(e, "title")}
+                    placeholder="Enter product name"
+                    required
+                    className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white/50"
+                  />
+                </div>
+              </div>
 
-          <label htmlFor="stock">Stock:</label>
-          <input
-            type="number"
-            name="stock"
-            value={updatedProduct?.stock}
-            onChange={(e) => handleChange(e, "stock")}
-            className={`block w-[130px] rounded-md border-0 py-1.5 text-green-950 shadow-md ring-1 ring-inset ring-green-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-bold-600 sm:text-md sm:leading-6`}
-          />
-        </div>
+              {/* Category */}
+              <div className="group">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Category <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Tag className="h-5 w-5 text-gray-400 group-focus-within:text-green-600 transition-colors duration-200" />
+                  </div>
+                  <input
+                    type="text"
+                    name="category"
+                    value={product.category}
+                    onChange={(e) => handleChange(e, "category")}
+                    placeholder="e.g., Electronics, Clothing, Food"
+                    required
+                    className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white/50"
+                  />
+                </div>
+              </div>
 
-        <div class="mt-4 flex justify-start items-center gap-4">
-          <label htmlFor="desc">Description:</label>
-          <textarea
-            name="desc"
-            value={updatedProduct?.desc}
-            onChange={(e) => handleChange(e, "desc")}
-            rows={3}
-            cols={30}
-            className={`block w-[300px] rounded-md border-0 py-1.5 text-green-950 shadow-md ring-1 ring-inset ring-green-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-bold-600 sm:text-md sm:leading-6`}
-          />
-        </div>
-
-        <div class="mt-4 flex justify-start items-center gap-4">
-          <label htmlFor="fastDelivery">Fast Delivery:</label>
-          <input
-            type="checkbox"
-            id="fastDelivery"
-            name="fastDelivery"
-            checked={updatedProduct?.fastDelivery}
-            onChange={(e) => handleCheckboxChange(e, "fastDelivery")}
-            className={`block w-6 h-6 rounded-md border-0 text-green-950 shadow-md ring-1 ring-inset ring-green-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-bold-600 sm:text-md sm:leading-6`}
-          />
-        </div>
-
-        <div class="mt-4 flex justify-start items-center gap-4">
-          <div className="w-[250px] bg-green-100 backdrop-blur-md h-[150px] lg:h-[210px] 2xl:h-[220px] rounded-md border-2 border-dotted border-gray-300 cursor-pointer flex items-center justify-center">
-            {!image.data ? (
-              <label className="w-full cursor-pointer h-full">
-                <div className="flex flex-col items-center justify-center h-full w-full">
-                  <div className="flex items-center justify-center cursor-pointer flex-col gap-2">
-                    <FaUpload className="text-2xl" />
-                    <p className="text-lg text-txtLight">Product Image</p>
+              {/* Price and Stock */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Price */}
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Price (₹) <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <DollarSign className="h-5 w-5 text-gray-400 group-focus-within:text-green-600 transition-colors duration-200" />
+                    </div>
+                    <input
+                      type="number"
+                      name="price"
+                      value={product.price}
+                      onChange={(e) => handleChange(e, "price")}
+                      placeholder="0.00"
+                      required
+                      min="0"
+                      step="0.01"
+                      className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white/50"
+                    />
                   </div>
                 </div>
 
-                <input
-                  type="file"
-                  className="w-0 h-0"
-                  accept=".jpeg,.jpg,.png,.webp,.svg"
-                  onChange={handleFileSelect}
-                />
-              </label>
-            ) : (
-              <div className="relative w-full h-full overflow-hidden rounded-md">
-                <img
-                  src={image.preview}
-                  className="w-full h-full object-contain rounded-md"
-                  loading="lazy"
-                  alt="profile image"
-                />
+                {/* Stock */}
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Stock Quantity <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Box className="h-5 w-5 text-gray-400 group-focus-within:text-green-600 transition-colors duration-200" />
+                    </div>
+                    <input
+                      type="number"
+                      name="stock"
+                      value={product.stock}
+                      onChange={(e) => handleChange(e, "stock")}
+                      placeholder="0"
+                      required
+                      min="0"
+                      className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white/50"
+                    />
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+
+              {/* Description */}
+              <div className="group">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Description
+                </label>
+                <div className="relative">
+                  <div className="absolute top-3 left-4 pointer-events-none">
+                    <FileText className="h-5 w-5 text-gray-400 group-focus-within:text-green-600 transition-colors duration-200" />
+                  </div>
+                  <textarea
+                    name="desc"
+                    value={product.desc}
+                    onChange={(e) => handleChange(e, "desc")}
+                    rows={4}
+                    placeholder="Describe your product..."
+                    className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white/50 resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Fast Delivery */}
+              <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                <input
+                  type="checkbox"
+                  id="fastDelivery"
+                  name="fastDelivery"
+                  checked={product.fastDelivery}
+                  onChange={(e) => handleCheckboxChange(e, "fastDelivery")}
+                  className="w-5 h-5 text-green-600 focus:ring-green-500 border-gray-300 rounded cursor-pointer"
+                />
+                <label
+                  htmlFor="fastDelivery"
+                  className="flex items-center gap-2 text-gray-700 font-semibold cursor-pointer select-none"
+                >
+                  <Zap className="w-5 h-5 text-yellow-500" />
+                  Enable Fast Delivery
+                </label>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-8 py-6 border-t border-blue-100">
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/dashboard")}
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-100 transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-5 h-5" />
+                      Update Product
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
+
+      <style jsx>{`
+        .delay-700 {
+          animation-delay: 700ms;
+        }
+
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+
+        /* Hide number input spinner */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+
+        input[type="number"] {
+          -moz-appearance: textfield;
+        }
+      `}</style>
     </div>
   );
 };

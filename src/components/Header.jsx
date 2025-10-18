@@ -1,19 +1,14 @@
 import React, { useState } from "react";
-import {
-  FaHeart,
-  FaCartShopping,
-  FaAngleRight,
-  FaCircleXmark,
-} from "react-icons/fa6";
+import { FaCartShopping, FaCircleXmark } from "react-icons/fa6";
 import { HiLogout } from "react-icons/hi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { setUser } from "../redux/reducers/userReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { Logo, adminIds } from "../utils/helpers";
 import { setSearchKeyword } from "../redux/reducers/productsReducer";
+import { Search, User, ShoppingBag, LogIn, LogOut, Settings } from "lucide-react";
 
 const Header = () => {
-  //Component states
   const [searchValue, setSearchValue] = useState("");
   const [inputActive, setInputActive] = useState(false);
   const [open, setOpen] = useState(false);
@@ -26,7 +21,6 @@ const Header = () => {
 
   const totalItems = cartItems.length;
 
-  // Check if the current location is /auth or /register
   const shouldRenderHeader = !["/auth", "/register"].includes(
     location.pathname
   );
@@ -42,159 +36,206 @@ const Header = () => {
   };
 
   return shouldRenderHeader ? (
-    <div className="container-header bg-green-100">
-      <header className="w-full h-12 max-w-[1300px] m-auto bg-green-100 flex justify-between items-center gap-4 py-3 px-4 pt-2">
-        {/* Logo section */}
-        <Link to={`/`} className="left-container flex items-center gap-2">
-          <img src={Logo} alt="" className="w-10 rounded-md" loading="lazy" />
-          <span className="logo_text text-xl font-semibold text-green-800">
-            Shop Kar
-          </span>
-        </Link>
-
-        {/* Search section  */}
-        <div className="hidden lg:flex center-container flex-1 bg-green-100 rounded-full duration-150 hover:scale-105 active:scale-105 mx-4 relative">
-          <input
-            type="text"
-            value={searchValue}
-            onChange={handleOnChange}
-            className="flex-1 rounded-full text-md"
-            placeholder="Type product names to search ..."
-          />
-          {inputActive && (
-            <span
-              onClick={() => {
-                setSearchValue("");
-                setInputActive(false);
-                dispatch(setSearchKeyword(""));
-              }}
-              className="absolute right-3 top-1 cursor-pointer"
-            >
-              <FaCircleXmark size={28} />
-            </span>
-          )}
-        </div>
-
-        {/* Cart & User section */}
-        <div className="right-container flex items-center gap-4">
-          {/* <Link
-            to={"/wishlist"}
-            className="text-2xl duration-150 hover:scale-110 active:scale-95"
+    <div className="sticky top-0 z-50 bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 backdrop-blur-lg shadow-lg border-b border-green-100">
+      <header className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Main Header */}
+        <div className="flex items-center justify-between h-16 gap-4">
+          {/* Logo Section */}
+          <Link 
+            to="/" 
+            className="flex items-center gap-3 group transform transition-all duration-300 hover:scale-105"
           >
-            <FaHeart color="green" className="" />
-          </Link> */}
-          <div className="relative">
-            <Link to={"/cart"} className="cursor-pointer">
-              <FaCartShopping className="text-2xl text-green-800 duration-150 hover:scale-110 active:scale-95" />
-              {/* Render badge only if there are items in the cart */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl blur opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+              <img
+                src={Logo}
+                alt="Shop Kar Logo"
+                className="min-w-10 min-h-10 w-10 h-10 rounded-xl relative z-10 shadow-md"
+                loading="lazy"
+              />
+            </div>
+            <span className="hidden sm:block text-2xl font-bold bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent">
+              Shop Kar
+            </span>
+          </Link>
+
+          {/* Search Bar - Desktop */}
+          <div className="flex flex-1 max-w-2xl mx-8">
+            <div className="relative w-full group">
+              <div className="absolute inset-0 bg-gradient-to-r from-green-200 to-emerald-200 rounded-2xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="relative flex items-center bg-white/80 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-green-100">
+                <Search className="absolute left-4 h-5 w-5 text-gray-400 group-focus-within:text-green-600 transition-colors duration-200" />
+                <input
+                  type="text"
+                  value={searchValue}
+                  onChange={handleOnChange}
+                  className="flex-1 pl-12 pr-12 py-3 bg-transparent border-none focus:outline-none focus:ring-0 text-gray-800 placeholder-gray-400 rounded-2xl"
+                  placeholder="Search products..."
+                />
+                {inputActive && (
+                  <button
+                    onClick={() => {
+                      setSearchValue("");
+                      setInputActive(false);
+                      dispatch(setSearchKeyword(""));
+                    }}
+                    className="absolute right-3 p-1 hover:bg-red-50 rounded-full transition-all duration-200 hover:scale-110 active:scale-95"
+                  >
+                    <FaCircleXmark className="text-red-500 text-xl" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Section - Cart & User */}
+          <div className="flex items-center gap-4">
+            {/* Cart Icon */}
+            <Link
+              to="/cart"
+              className="relative p-3 rounded-xl bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transform transition-all duration-200 hover:scale-110 active:scale-95 border border-green-100"
+            >
+              <ShoppingBag className="h-6 w-6 text-green-700" />
               {totalItems > 0 && (
-                <span className="absolute -top-1 right-1 inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white text-[10px] font-bold rounded-full">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold rounded-full shadow-lg animate-pulse">
                   {totalItems}
                 </span>
               )}
             </Link>
-          </div>
 
-          {user ? (
-            <div onClick={() => setOpen(!open)} className="relative z-10">
-              <div className="w-9 h-9 rounded-md relative flex items-center justify-center cursor-pointer">
-                <img
-                  src={user?.avatar}
-                  alt=""
-                  className="w-full h-full object-cover rounded-md"
-                />
-              </div>
-              {/* dropdown menu */}
-              {open && (
-                <div
-                  className="absolute top-11 right-1 flex flex-col items-center w-60 p-4 border border-green-200 shadow-xl shadow-green-200 bg-green-50 rounded-md pt-4 gap-2"
-                  onMouseLeave={() => setOpen(false)}
+            {/* User Section */}
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setOpen(!open)}
+                  className="flex items-center gap-2 p-2 rounded-xl bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95 border border-green-100"
                 >
-                  {user?.avatar && (
-                    <div className="w-20 h-20 rounded-md relative flex items-center justify-center cursor-pointer">
-                      <img
-                        src={user?.avatar}
-                        alt=""
-                        className="w-full h-full object-cover rounded-full"
-                      />
+                  <img
+                    src={user?.avatar}
+                    alt="User Avatar"
+                    className="w-10 h-10 object-cover rounded-lg"
+                  />
+                </button>
+
+                {/* Dropdown Menu */}
+                {open && (
+                  <div
+                    className="absolute top-16 right-0 w-72 bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-green-100 overflow-hidden animate-fade-in-down"
+                    onMouseLeave={() => setOpen(false)}
+                  >
+                    {/* User Info */}
+                    <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-b border-green-100">
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={user?.avatar}
+                          alt="User Avatar"
+                          className="w-16 h-16 object-cover rounded-xl shadow-md"
+                        />
+                        <div>
+                          <h3 className="font-semibold text-gray-800 text-lg">
+                            {user?.name}
+                          </h3>
+                          <p className="text-sm text-gray-600">{user?.email}</p>
+                        </div>
+                      </div>
                     </div>
-                  )}
 
-                  {/* menus */}
-                  <div className="w-full flex flex-col items-start gap-4 pt-4">
-                    <Link
-                      to="/profile"
-                      className="text-txtLight hover:text-txtDark text-base whitespace-nowrap text-green-700 font-semibold"
-                    >
-                      My Profile
-                    </Link>
-
-                    {adminIds.includes(user?._id) && (
+                    {/* Menu Items */}
+                    <div className="p-4 space-y-2">
                       <Link
-                        to="/admin/dashboard"
-                        className="text-txtLight hover:text-txtDark text-base whitespace-nowrap text-green-700 font-semibold"
+                        to="/profile"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-green-700 transition-all duration-200 group"
                       >
-                        Admin Dashboard
+                        <User className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
+                        <span className="font-medium">My Profile</span>
                       </Link>
-                    )}
 
-                    <div
-                      onClick={() => {
-                        dispatch(setUser(null));
-                        localStorage.removeItem("token");
-                        localStorage.removeItem("user");
-                        navigate("/");
-                      }}
-                      className="w-full p-2 border-t border-gray-300 flex justify-between items-center group cursor-pointer text-green-800 font-semibold"
-                    >
-                      <p className="group-hover:text-txtDark text-txtLight">
-                        Sign Out
-                      </p>
-                      <HiLogout className="text-txtLight group-hover:text-txtDark" />
+                      {adminIds.includes(user?._id) && (
+                        <Link
+                          to="/admin/dashboard"
+                          onClick={() => setOpen(false)}
+                          className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-green-700 transition-all duration-200 group"
+                        >
+                          <Settings className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
+                          <span className="font-medium">Admin Dashboard</span>
+                        </Link>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          dispatch(setUser(null));
+                          localStorage.removeItem("token");
+                          localStorage.removeItem("user");
+                          setOpen(false);
+                          navigate("/");
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 group border-t border-gray-100 mt-2"
+                      >
+                        <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
+                        <span className="font-medium">Sign Out</span>
+                      </button>
                     </div>
                   </div>
-                </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/auth"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold shadow-lg hover:shadow-xl transform transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                <LogIn className="w-5 h-5" />
+                <span className="hidden sm:inline">Login</span>
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {/* Search Bar - Mobile */}
+        {/* <div className="lg:hidden pb-4">
+          <div className="relative group">
+            <div className="relative flex items-center bg-white/80 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-green-100">
+              <Search className="absolute left-4 h-5 w-5 text-gray-400 group-focus-within:text-green-600 transition-colors duration-200" />
+              <input
+                type="text"
+                value={searchValue}
+                onChange={handleOnChange}
+                className="flex-1 pl-12 pr-12 py-3 bg-transparent border-none focus:outline-none focus:ring-0 text-gray-800 placeholder-gray-400 rounded-2xl"
+                placeholder="Search products..."
+              />
+              {inputActive && (
+                <button
+                  onClick={() => {
+                    setSearchValue("");
+                    setInputActive(false);
+                    dispatch(setSearchKeyword(""));
+                  }}
+                  className="absolute right-3 p-1 hover:bg-red-50 rounded-full transition-all duration-200"
+                >
+                  <FaCircleXmark className="text-red-500 text-xl" />
+                </button>
               )}
             </div>
-          ) : (
-            <Link
-              to={`/auth`}
-              className="w-full flex justify-between items-center gap-2 px-2 py-1 rounded-md border-green-700 border-2 cursor-pointer group duration-150 hover:bg-green-700 hover:shadow-md hover:scale-105 active:scale-95 mr-2"
-            >
-              <p className="text-green-900 text-md group-hover:text-white">
-                Login
-              </p>
-              <FaAngleRight className="text-green-900 text-base group-hover:text-white" />
-            </Link>
-          )}
-        </div>
+          </div>
+        </div> */}
       </header>
 
-      {/* Search responsive design  */}
-      <div className="flex lg:hidden w-full h-11 max-w-[1300px] m-auto bg-green-100 justify-center items-center gap-4 px-3 mr-12">
-        {/* Search section  */}
-        <div className="flex center-container flex-1 bg-green-100 rounded-full w-full max-w-xl duration-150 hover:scale-105 active:scale-105 relative">
-          <input
-            type="text"
-            value={searchValue}
-            onChange={handleOnChange}
-            className="flex-1 rounded-full text-md pb-2"
-            placeholder="Type product names to search ..."
-          />
-          {inputActive && (
-            <span
-              onClick={() => {
-                setSearchValue("");
-                setInputActive(false);
-                dispatch(setSearchKeyword(""));
-              }}
-              className="absolute right-3 top-1 cursor-pointer"
-            >
-              <FaCircleXmark size={28} />
-            </span>
-          )}
-        </div>
-      </div>
+      <style jsx>{`
+        @keyframes fade-in-down {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fade-in-down {
+          animation: fade-in-down 0.3s ease-out;
+        }
+      `}</style>
     </div>
   ) : null;
 };

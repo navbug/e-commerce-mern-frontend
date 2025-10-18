@@ -1,5 +1,5 @@
 import React from "react";
-import { FaHeart, FaPlus, FaRegHeart, FaRegStar, FaStar } from "react-icons/fa6";
+import { FaPlus, FaRegStar, FaStar } from "react-icons/fa6";
 import { calculateAverageRating, numWithCommas } from "../utils/helpers";
 import { useNavigate } from "react-router-dom";
 import { FaShippingFast } from "react-icons/fa";
@@ -27,69 +27,82 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  const avgRating = calculateAverageRating(product.reviews);
+
   return (
     <div
       onClick={handleCardClick}
-      key={product.id}
-      className="w-full h-[200px] 2xl:h-[300px] rounded-md bg-green-100 overflow-hidden relative mx-2 flex cursor-pointer hover:scale-[102%] duration-150 transition-all"
+      className="group w-full bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-emerald-200 hover:-translate-y-1"
     >
-      <div className="left-container w-[45%] p-2">
+      {/* Image Container */}
+      <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-square overflow-hidden">
         <img
           src={
             product?.images
               ? product?.images
               : "https://upload.wikimedia.org/wikipedia/commons/1/14/Product_sample_icon_picture.png"
           }
-          alt=""
-          className="w-full h-full object-contain rounded-md"
+          alt={product.title}
+          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
         />
-      </div>
-      <div className="w-[55%] right-container flex flex-col items-start gap-1 p-2 bg-green-200 relative ">
-        <div className="w-full flex justify-between items-center px-2">
-          <div className="flex gap-1">
-            {calculateAverageRating(product.reviews) > 0 ? (
-              <FaStar color="orange" />
-            ) : (
-              <FaRegStar color="orange" />
-            )}
-            <span className="text-sm italic font-semibold">
-              {calculateAverageRating(product.reviews)}
-            </span>
-          </div>
-         
+        
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-2">
+          {product?.fastDelivery && (
+            <div className="flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-md">
+              <FaShippingFast size={14} />
+              <span>Fast Delivery</span>
+            </div>
+          )}
+          {product.stock > 0 && product.stock < 10 && (
+            <div className="bg-red-500 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-md">
+              Only {product.stock} left
+            </div>
+          )}
         </div>
-        <div className="text-lg font-bold">{product.title}</div>
-        <div className="text-md font-bold">₹{numWithCommas(product.price)}</div>
-        {product.stock > 0 && (
-          <div className="">
-            {product.stock < 10 ? (
-              <span className="text-red-500 text-sm font-semibold">
-                Only {product.stock} in stock
-              </span>
-            ) : (
-              <button className="bg-green-800 text-white text-xs py-1 px-1 rounded">
-                In stock
-              </button>
-            )}
+
+        {/* Rating Badge */}
+        {avgRating > 0 && (
+          <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-md">
+            <FaStar className="text-amber-400" size={14} />
+            <span className="text-sm font-bold text-gray-800">{avgRating}</span>
           </div>
         )}
+      </div>
 
-        {product?.fastDelivery && (
-          <div className="flex gap-1 text-xs italic font-semibold">
-            <FaShippingFast size={16} /> Fast Delivery
-          </div>
-        )}
+      {/* Content Container */}
+      <div className="p-4 space-y-3">
+        {/* Title */}
+        <h3 className="font-semibold text-gray-800 line-clamp-2 min-h-[3rem] group-hover:text-emerald-700 transition-colors">
+          {product.title}
+        </h3>
 
-        <div className="absolute bottom-2 left-2">
+        {/* Price */}
+        <div className="flex items-baseline gap-1">
+          <span className="text-2xl font-bold text-gray-900">
+            ₹{numWithCommas(product.price)}
+          </span>
+        </div>
+
+        {/* Stock Status & Add to Cart */}
+        <div className="flex items-center justify-between pt-2">
           {product.stock > 0 ? (
-            <button
-              onClick={(e) => handleAddToCart(e, product)}
-              className="bg-green-700 hover:bg-green-900 text-white text-sm font-bold py-1 px-2 rounded flex justify-center items-center gap-1 duration-150 transition-all hover:scale-[103%] active:scale-[97%]"
-            >
-              <FaPlus /> Add to cart
-            </button>
+            <>
+              {product.stock >= 10 && (
+                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  In Stock
+                </span>
+              )}
+              <button
+                onClick={(e) => handleAddToCart(e, product)}
+                className="ml-auto flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg active:scale-95 transition-all duration-200"
+              >
+                <FaPlus size={14} />
+                <span>Add to Cart</span>
+              </button>
+            </>
           ) : (
-            <button className="bg-red-500 text-white text-sm font-bold py-1 px-2 rounded">
+            <button className="w-full bg-gray-100 text-gray-500 font-semibold py-2.5 rounded-lg cursor-not-allowed border border-gray-200">
               Out of Stock
             </button>
           )}

@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/reducers/cartReducer";
 import moment from "moment";
 import MainSpinner from "../components/MainSpinner";
+import ProductDetailsShimmer from "../components/ProductDetailsShimmer";
 
 const ProductDetails = () => {
   const [product, setProduct] = useState(null);
@@ -100,189 +101,252 @@ const ProductDetails = () => {
     }
   }, [product?.reviews]);
 
+  const avgRating = product ? handleCalcAvgProductRating(product.reviews) : 0;
+
   return (
     <>
       {loading ? (
-        <MainSpinner />
+        <ProductDetailsShimmer />
       ) : (
         <>
           {product && (
-            <div className="w-full flex flex-col md:flex-row justify-center items-center md:items-start gap-6 md:gap-0 px-4 py-4 bg-green-50">
-              <div className="left-container flex justify-center items-center w-full sm:w-[80%] md:w-[60%] lg:w-[40%] h-full bg-green-300 mx-4 rounded-lg shadow-lg">
-                <img
-                  src={
-                    product?.images
-                      ? product?.images
-                      : "https://upload.wikimedia.org/wikipedia/commons/1/14/Product_sample_icon_picture.png"
-                  }
-                  alt=""
-                />
-              </div>
-              <div className="right-container w-full md:w-[40%] lg:w-[60%] lg: pl-10 flex flex-col gap-2 relative bg-green-50 pt-2 ml-5 md:ml-0">
-                <div className="flex gap-1 text-lg">
-                  <FaStar color="orange" />
-                  <span className="text-sm italic font-semibold">
-                    {handleCalcAvgProductRating(product.reviews)}
-                  </span>
-                </div>
-                <div className="text-xl font-bold tracking-[0.8px] text-green-950">
-                  {product?.title}
-                </div>
-                <div className="text-lg font-bold italic text-green-950">
-                  ₹{` `}
-                  {numWithCommas(product?.price)}
-                </div>
-                {product?.stock > 0 && (
-                  <div className="">
-                    {product.stock < 10 ? (
-                      <span className="text-red-500 text-sm font-semibold">
-                        Only {product.stock} in stock
-                      </span>
-                    ) : (
-                      <button className="bg-green-600 text-white text-xs py-1 px-1 rounded">
-                        In stock
-                      </button>
-                    )}
-                  </div>
-                )}
-                {product?.fastDelivery && (
-                  <div className="flex gap-1 text-xs italic font-semibold text-green-950">
-                    <FaShippingFast size={16} /> Fast Delivery
-                  </div>
-                )}
-                <div className="mt-2">
-                  <span className="text-green-900 font-bold">Features:</span>
-                  <ul className="flex flex-col gap-[6px] text-green-800 font-[500] mt-2">
-                    {product?.desc?.split(".").map((feature, index) => {
-                      return (
-                        <li
-                          key={index}
-                          className="text-sm list-disc max-w-72 md:max-w-64"
-                        >
-                          {feature}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                  <div className="mt-4">
-                    {product?.stock > 0 ? (
-                      <button
-                        onClick={(e) => handleAddToCart(e, product)}
-                        className="bg-green-700 hover:bg-green-800 text-white text-sm font-bold py-1 px-2 rounded flex justify-center items-center gap-1  duration-150 transition-all hover:scale-[103%] active:scale-[97%]"
-                      >
-                        <FaPlus /> Add to cart
-                      </button>
-                    ) : (
-                      <button className="bg-red-500 text-white text-sm font-bold py-2 px-4 rounded w-32">
-                        Out of Stock
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {user && (
-                  <div className="relative z-10">
-                    <div className="w-22 h-12 rounded-md relative flex items-center justify-start cursor-pointer">
-                      <button
-                        onClick={() => setWriteReview((prev) => !prev)}
-                        className="bg-green-700 hover:bg-green-800 text-white text-sm font-bold py-1 px-2 rounded flex justify-center items-center gap-1  duration-150 transition-all hover:scale-[103%] active:scale-[97%]"
-                      >
-                        <FaPencil /> Write a review
-                      </button>
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-emerald-50">
+              {/* Product Details Section */}
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-12">
+                    {/* Image Section */}
+                    <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-8 relative">
+                      <img
+                        src={
+                          product?.images
+                            ? product?.images
+                            : "https://upload.wikimedia.org/wikipedia/commons/1/14/Product_sample_icon_picture.png"
+                        }
+                        alt={product?.title}
+                        className="max-w-full max-h-[500px] object-contain"
+                      />
+                      
+                      {/* Rating Badge */}
+                      {avgRating > 0 && (
+                        <div className="absolute top-6 right-6 flex items-center gap-2 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-xl shadow-lg">
+                          <FaStar className="text-amber-400" size={20} />
+                          <span className="text-lg font-bold text-gray-800">
+                            {avgRating}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    {/* dropdown menu */}
-                    {writeReview && (
-                      <div className="bg-green-300 p-2 rounded-md shadow-lg shadow-brown mr-2 max-w-52 absolute">
-                        <form onSubmit={handleSubmit}>
-                          <div className="mb-2">
-                            <div className="flex">
-                              {[1, 2, 3, 4, 5].map((value) => (
-                                <span
-                                  key={value}
-                                  className={`pr-1 text-2xl cursor-pointer ${
-                                    value <= rating
-                                      ? "text-yellow-500"
-                                      : "text-green-100"
-                                  }`}
-                                  onClick={() => setRating(value)}
-                                >
-                                  <FaStar />
+
+                    {/* Product Info Section */}
+                    <div className="flex flex-col gap-6">
+                      {/* Title */}
+                      <div>
+                        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
+                          {product?.title}
+                        </h1>
+                        
+                        {/* Badges */}
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {product?.fastDelivery && (
+                            <span className="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-700 text-sm font-semibold px-3 py-1.5 rounded-lg border border-emerald-200">
+                              <FaShippingFast size={16} />
+                              Fast Delivery
+                            </span>
+                          )}
+                          {product?.stock > 0 && (
+                            <>
+                              {product.stock < 10 ? (
+                                <span className="inline-flex items-center bg-red-100 text-red-700 text-sm font-semibold px-3 py-1.5 rounded-lg border border-red-200">
+                                  Only {product.stock} left in stock
                                 </span>
+                              ) : (
+                                <span className="inline-flex items-center bg-emerald-100 text-emerald-700 text-sm font-semibold px-3 py-1.5 rounded-lg border border-emerald-200">
+                                  In Stock
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Price */}
+                      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-4xl font-bold text-gray-900">
+                            ₹{numWithCommas(product?.price)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Features */}
+                      <div className="bg-gray-50 rounded-xl p-6">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">
+                          Product Features
+                        </h2>
+                        <ul className="space-y-2">
+                          {product?.desc?.split(".").map((feature, index) => {
+                            if (feature.trim()) {
+                              return (
+                                <li
+                                  key={index}
+                                  className="flex items-start gap-2 text-gray-700"
+                                >
+                                  <span className="text-emerald-600 mt-1">•</span>
+                                  <span>{feature.trim()}</span>
+                                </li>
+                              );
+                            }
+                            return null;
+                          })}
+                        </ul>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        {product?.stock > 0 ? (
+                          <button
+                            onClick={(e) => handleAddToCart(e, product)}
+                            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200"
+                          >
+                            <FaPlus size={18} />
+                            <span className="text-lg">Add to Cart</span>
+                          </button>
+                        ) : (
+                          <button className="flex-1 bg-gray-100 text-gray-500 font-semibold py-4 rounded-xl cursor-not-allowed border-2 border-gray-200">
+                            Out of Stock
+                          </button>
+                        )}
+
+                        {user && (
+                          <button
+                            onClick={() => setWriteReview((prev) => !prev)}
+                            className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-semibold px-6 py-4 rounded-xl border-2 border-gray-200 hover:border-emerald-300 active:scale-95 transition-all duration-200"
+                          >
+                            <FaPencil size={16} />
+                            <span>Write a Review</span>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Review Form */}
+                      {writeReview && (
+                        <div className="bg-white rounded-xl p-6 border-2 border-emerald-200 shadow-lg">
+                          <h3 className="text-lg font-bold text-gray-900 mb-4">
+                            Share Your Experience
+                          </h3>
+                          <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Rating
+                              </label>
+                              <div className="flex gap-2">
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                  <button
+                                    type="button"
+                                    key={value}
+                                    className={`text-3xl cursor-pointer transition-all hover:scale-110 ${
+                                      value <= rating
+                                        ? "text-amber-400"
+                                        : "text-gray-300"
+                                    }`}
+                                    onClick={() => setRating(value)}
+                                  >
+                                    <FaStar />
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Your Review
+                              </label>
+                              <textarea
+                                ref={reviewRef}
+                                className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                                rows="4"
+                                placeholder="Share your thoughts about this product..."
+                              ></textarea>
+                            </div>
+                            <button
+                              type="submit"
+                              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg active:scale-95 transition-all duration-200"
+                            >
+                              Submit Review
+                            </button>
+                          </form>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Reviews Section */}
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="bg-white rounded-2xl shadow-xl p-6 lg:p-12">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                    <FaStar className="text-amber-400" size={28} />
+                    Customer Reviews
+                  </h2>
+
+                  {product?.reviews?.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {product?.reviews?.map((review) => (
+                        <div
+                          key={review._id}
+                          className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100 shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          {/* User Info */}
+                          <div className="flex items-center gap-3 mb-4">
+                            <img
+                              src={userInfo[review.user]?.[1]}
+                              alt={userInfo[review.user]?.[0]}
+                              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"
+                            />
+                            <div className="flex-1">
+                              <p className="font-semibold text-gray-900">
+                                {userInfo[review.user]?.[0]}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {moment(review.createdAt).fromNow()}
+                              </p>
+                            </div>
+                            {/* Rating */}
+                            <div className="flex gap-0.5">
+                              {[...Array(review.rating)].map((_, index) => (
+                                <FaStar
+                                  key={index}
+                                  className="text-amber-400"
+                                  size={16}
+                                />
                               ))}
                             </div>
                           </div>
-                          <div className="mb-2">
-                            <textarea
-                              id="review"
-                              // value={reviewRef.current.value}
-                              ref={reviewRef}
-                              // onChange={(e) => setReview(e.target.value)}
-                              className="w-full border border-green-300 bg-green-50 rounded-md p-1 outline-green-500"
-                              rows="2"
-                            ></textarea>
+
+                          {/* Review Text */}
+                          <div className="bg-white/60 rounded-lg p-4">
+                            <p className="text-gray-700 text-sm leading-relaxed">
+                              {review.review}
+                            </p>
                           </div>
-                          <button
-                            type="submit"
-                            className="bg-green-700 text-white py-1 px-2 rounded-md hover:bg-green-800  duration-150 transition-all hover:scale-[103%] active:scale-[97%]"
-                          >
-                            Submit
-                          </button>
-                        </form>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          {product?.reviews?.length > 0 ? (
-            <div className="p-4 bg-green-100 pb-4">
-              <h2 className="font-bold text-xl underline text-green-900 pb-2">
-                Product Reviews:
-              </h2>
-              <div className="flex items-center gap-4 px-4 py-3 flex-wrap h-[220px]">
-                {product?.reviews?.map((review, index) => (
-                  <div
-                    key={review._id}
-                    className="p-4 bg-green-500 text-white w-[300px] rounded-md"
-                  >
-                    <div className="flex items-center justify-end mb-6 relative">
-                      <div className="absolute -top-7 -left-7 flex items-center justify-start gap-2">
-                        <img
-                          src={userInfo[review.user]?.[1]}
-                          alt=""
-                          className="w-14 rounded-full"
-                        />
-                        <span className="font-semibold">
-                          {userInfo[review.user]?.[0]}
-                        </span>
-                      </div>
-                      <div className="flex justify-center items-center mr-2">
-                        {[...Array(review.rating)].map((_, index) => (
-                          <span key={index} className="text-yellow-300">
-                            <FaStar />
-                          </span>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="h-[70px] overflow-auto mb-2">
-                      <p className="text-white">{review.review}</p>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                        <FaStar className="text-gray-400" size={32} />
+                      </div>
+                      <p className="text-lg font-medium text-gray-600">
+                        No reviews yet
+                      </p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Be the first to review this product!
+                      </p>
                     </div>
-                    <div className="w-full text-gray-100 text-right text-sm">
-                      {moment(review.createdAt).fromNow()}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="bg-green-100">
-              <h2 className="font-bold text-xl underline px-4 py-2">
-                Product Reviews:
-              </h2>
-              <div className="w-full flex justify-center items-center">
-                <span className="text-lg font-semibold text-green-900 text-center">
-                  No product reviews yet.
-                </span>
+                  )}
+                </div>
               </div>
             </div>
           )}
