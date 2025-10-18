@@ -55,7 +55,7 @@ const Register = () => {
           name: values.name,
           email: values.email,
           password: values.password,
-          avatar: `${API_BASE_URL}/files/${imgRes.data.fileName}`,
+          avatar: `${imgRes.data.fileUrl}`,
         };
 
         const result = await axios.post(`${API_BASE_URL}/register`, requestData);

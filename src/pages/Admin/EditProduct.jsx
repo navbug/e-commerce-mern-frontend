@@ -109,7 +109,7 @@ const EditProduct = () => {
       // Only upload new image if one was selected
       if (image.data) {
         const imgRes = await handleFileUpload();
-        productData.images = `${API_BASE_URL}/files/${imgRes.data.fileName}`;
+        productData.images = `${imgRes.data.fileUrl}`;
       }
 
       await updateProduct(productId, productData);

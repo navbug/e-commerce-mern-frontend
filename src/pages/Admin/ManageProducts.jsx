@@ -67,6 +67,8 @@ const ManageProducts = () => {
     }
   };
 
+  console.log(products);
+
   return (
     <div className="w-full">
       {/* Header */}

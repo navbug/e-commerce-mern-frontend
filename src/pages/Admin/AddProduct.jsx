@@ -93,7 +93,7 @@ const AddProduct = () => {
       const imgRes = await addImage();
       const productData = {
         ...newProduct,
-        images: `${API_BASE_URL}/files/${imgRes.data.fileName}`,
+        images: `${imgRes.data.fileUrl}`,
       };
       await addProduct(productData);
       toast.success("Product added successfully");
