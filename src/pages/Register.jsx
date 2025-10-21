@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
@@ -15,7 +15,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
-  const validationSchema = Yup.object({
+  const validationSchema = useMemo(Yup.object({
     name: Yup.string()
       .min(2, "Name must be at least 2 characters")
       .max(50, "Name must be less than 50 characters")
@@ -31,7 +31,7 @@ const Register = () => {
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Please confirm your password"),
-  });
+  }), []);
 
   const formik = useFormik({
     initialValues: {
@@ -75,7 +75,7 @@ const Register = () => {
     },
   });
 
-  const handleFileSelect = (event) => {
+  const handleFileSelect = useCallback((event) => {
     event.preventDefault();
     const file = event.target.files[0];
     
@@ -91,18 +91,26 @@ const Register = () => {
       };
       setImage(img);
     }
-  };
+  }, []);
 
-  const handleFileUpload = async () => {
+  const handleFileUpload = useCallback(async () => {
     let formData = new FormData();
     formData.append("file", image.data);
     const res = await axios.post(`${API_BASE_URL}/uploadFile`, formData);
     return res;
-  };
+  }, []);
 
   const removeImage = () => {
     setImage({ preview: "", data: "" });
   };
+
+  useEffect(() => {
+    return () => {
+      if(image.preview) {
+        URL.revokeObjectURL(image.preview);
+      }
+    }
+  }, [image.preview]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 px-4 py-8 relative overflow-hidden">

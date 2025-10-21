@@ -1,27 +1,27 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
+import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ShoppingCart } from "lucide-react";
 import {
   changeQuantity,
   removeFromCart,
   calculatePrice,
 } from "../redux/reducers/cartReducer";
-import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
-import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ShoppingCart } from "lucide-react";
 
 const Cart = () => {
   const { cartItems } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
-  const handleCartDeleteProduct = (id) => {
+  const handleCartDeleteProduct = useCallback((id) => {
     dispatch(removeFromCart(id));
     toast.success(`Item removed from cart`);
-  };
+  }, []);
 
-  const handleCartQtyChange = (id, qty) => {
+  const handleCartQtyChange = useCallback((id, qty) => {
     dispatch(changeQuantity({ id, qty }));
-  };
+  }, []);
 
   useEffect(() => {
     dispatch(calculatePrice());
@@ -96,6 +96,7 @@ const Cart = () => {
                             "https://upload.wikimedia.org/wikipedia/commons/1/14/Product_sample_icon_picture.png"
                           }
                           alt={item.title}
+                          loading="lazy"
                         />
                       </div>
 

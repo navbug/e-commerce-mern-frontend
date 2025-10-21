@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { getAllOrders } from "../api";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { ClipLoader } from "react-spinners";
 import { 
   ShoppingBag, 
   Eye, 
@@ -12,6 +10,7 @@ import {
   Clock,
   Receipt
 } from "lucide-react";
+import { getAllOrders } from "../api";
 
 const Orders = () => {
   const [loading, setLoading] = useState(true);

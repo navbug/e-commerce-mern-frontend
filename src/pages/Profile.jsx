@@ -9,9 +9,6 @@ import {
   Settings,
   LogOut,
   Shield,
-  Package,
-  Heart,
-  CreditCard,
 } from "lucide-react";
 import { setUser } from "../redux/reducers/userReducer";
 

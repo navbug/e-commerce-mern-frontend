@@ -50,8 +50,8 @@ const Header = () => {
               <img
                 src={Logo}
                 alt="Shop Kar Logo"
-                className="min-w-10 min-h-10 w-10 h-10 rounded-xl relative z-10 shadow-md"
                 loading="lazy"
+                className="min-w-10 min-h-10 w-10 h-10 rounded-xl relative z-10 shadow-md"
               />
             </div>
             <span className="hidden sm:block text-2xl font-bold bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent">
@@ -113,6 +113,7 @@ const Header = () => {
                   <img
                     src={user?.avatar}
                     alt="User Avatar"
+                    loading="lazy"
                     className="w-10 h-10 object-cover rounded-lg"
                   />
                 </button>
@@ -129,6 +130,7 @@ const Header = () => {
                         <img
                           src={user?.avatar}
                           alt="User Avatar"
+                          loading="lazy"
                           className="w-16 h-16 object-cover rounded-xl shadow-md"
                         />
                         <div>
@@ -190,34 +192,6 @@ const Header = () => {
             )}
           </div>
         </div>
-
-        {/* Search Bar - Mobile */}
-        {/* <div className="lg:hidden pb-4">
-          <div className="relative group">
-            <div className="relative flex items-center bg-white/80 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-green-100">
-              <Search className="absolute left-4 h-5 w-5 text-gray-400 group-focus-within:text-green-600 transition-colors duration-200" />
-              <input
-                type="text"
-                value={searchValue}
-                onChange={handleOnChange}
-                className="flex-1 pl-12 pr-12 py-3 bg-transparent border-none focus:outline-none focus:ring-0 text-gray-800 placeholder-gray-400 rounded-2xl"
-                placeholder="Search products..."
-              />
-              {inputActive && (
-                <button
-                  onClick={() => {
-                    setSearchValue("");
-                    setInputActive(false);
-                    dispatch(setSearchKeyword(""));
-                  }}
-                  className="absolute right-3 p-1 hover:bg-red-50 rounded-full transition-all duration-200"
-                >
-                  <FaCircleXmark className="text-red-500 text-xl" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div> */}
       </header>
 
       <style jsx>{`

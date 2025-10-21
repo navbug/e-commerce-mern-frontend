@@ -14,6 +14,7 @@ const ManageCustomers = () => {
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
+  console.log(users);
   const handleGetAllUsers = async () => {
     try {
       setLoading(true);
@@ -25,7 +26,7 @@ const ManageCustomers = () => {
     }
   };
 
-  const handleDeleteUser = async (id) => {
+  const handleDeleteUser = useCallback(async (id) => {
     try {
       await deleteUser(id);
       if (id === user._id) {
@@ -39,7 +40,7 @@ const ManageCustomers = () => {
     } catch (error) {
       console.log("Error deleting user:", error);
     }
-  };
+  }, [user?._id]);
 
   useEffect(() => {
     handleGetAllUsers();
@@ -109,6 +110,7 @@ const ManageCustomers = () => {
                               className="w-full h-full object-cover"
                               src={userData.avatar}
                               alt={userData.name}
+                              loading="lazy"
                             />
                           </div>
                           {adminIds.includes(userData._id) && (

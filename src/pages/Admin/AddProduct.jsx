@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { API_BASE_URL } from "../../../config";
-import { addProduct } from "../../api";
 import {
   Upload,
   Package,
@@ -16,6 +14,8 @@ import {
   Save,
   ArrowLeft,
 } from "lucide-react";
+import { API_BASE_URL } from "../../../config";
+import { addProduct } from "../../api";
 
 const AddProduct = () => {
   const [image, setImage] = useState({ preview: "", data: "" });

@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { API_BASE_URL } from "../../../config";
-import { getProductById, updateProduct } from "../../api";
 import {
   Upload,
   Package,
@@ -17,6 +15,8 @@ import {
   ArrowLeft,
   Loader2,
 } from "lucide-react";
+import { API_BASE_URL } from "../../../config";
+import { getProductById, updateProduct } from "../../api";
 
 const EditProduct = () => {
   const [image, setImage] = useState({ preview: "", data: "" });

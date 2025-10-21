@@ -25,6 +25,7 @@ const ManageProducts = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  console.log(products);
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
 
@@ -153,6 +154,7 @@ const ManageProducts = () => {
                               "https://upload.wikimedia.org/wikipedia/commons/1/14/Product_sample_icon_picture.png"
                             }
                             alt={product.title}
+                            loading="lazy"
                           />
                         </div>
                         <div className="min-w-0 flex-1">

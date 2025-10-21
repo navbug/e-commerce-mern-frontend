@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { saveShippingInfo } from "../redux/reducers/cartReducer";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { API_BASE_URL } from "../../config";
 import { MapPin, Home, Building2, Globe, Hash, CreditCard, ArrowLeft } from "lucide-react";
+import { API_BASE_URL } from "../../config";
+import { saveShippingInfo } from "../redux/reducers/cartReducer";
 
 const Shipping = () => {
   const [shippingInfo, setShippingInfo] = useState({

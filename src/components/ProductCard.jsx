@@ -1,15 +1,13 @@
-import React from "react";
-import { FaPlus, FaRegStar, FaStar } from "react-icons/fa6";
-import { calculateAverageRating, numWithCommas } from "../utils/helpers";
+import React, { memo } from "react";
+import { Pencil, Plus, Star, Truck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { FaShippingFast } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../redux/reducers/cartReducer";
 import { toast } from "react-toastify";
+import { addToCart } from "../redux/reducers/cartReducer";
+import { calculateAverageRating, numWithCommas } from "../utils/helpers";
 
-const ProductCard = ({ product }) => {
+const ProductCard = memo(({ product }) => {
   const cartItems = useSelector((state) => state.cart.cartItems);
-  const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -43,6 +41,7 @@ const ProductCard = ({ product }) => {
               : "https://upload.wikimedia.org/wikipedia/commons/1/14/Product_sample_icon_picture.png"
           }
           alt={product.title}
+          loading="lazy"
           className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
         />
         
@@ -50,7 +49,7 @@ const ProductCard = ({ product }) => {
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {product?.fastDelivery && (
             <div className="flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-md">
-              <FaShippingFast size={14} />
+              <Truck size={14} />
               <span>Fast Delivery</span>
             </div>
           )}
@@ -64,7 +63,7 @@ const ProductCard = ({ product }) => {
         {/* Rating Badge */}
         {avgRating > 0 && (
           <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-md">
-            <FaStar className="text-amber-400" size={14} />
+            <Star className="text-amber-400" size={14} />
             <span className="text-sm font-bold text-gray-800">{avgRating}</span>
           </div>
         )}
@@ -97,7 +96,7 @@ const ProductCard = ({ product }) => {
                 onClick={(e) => handleAddToCart(e, product)}
                 className="ml-auto flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg active:scale-95 transition-all duration-200"
               >
-                <FaPlus size={14} />
+                <Pencil size={14} />
                 <span>Add to Cart</span>
               </button>
             </>
@@ -110,6 +109,6 @@ const ProductCard = ({ product }) => {
       </div>
     </div>
   );
-};
+});
 
 export default ProductCard;

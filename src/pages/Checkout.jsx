@@ -8,10 +8,10 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { resetCart } from "../redux/reducers/cartReducer";
 import { toast } from "react-toastify";
+import { CreditCard, Lock, Loader2 } from "lucide-react";
+import { resetCart } from "../redux/reducers/cartReducer";
 import { newOrder } from "../api";
-import { CreditCard, Shield, Lock, CheckCircle2, Loader2 } from "lucide-react";
 
 const stripeKey = import.meta.env.VITE_STRIPE_KEY;
 const stripePromise = loadStripe(stripeKey);
@@ -116,31 +116,6 @@ const CheckOutForm = () => {
               />
             </div>
 
-            {/* Security Features */}
-            {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
-                <Shield className="w-5 h-5 text-green-600 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-gray-800">Secure</p>
-                  <p className="text-xs text-gray-600">SSL Encrypted</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
-                <Lock className="w-5 h-5 text-green-600 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-gray-800">Protected</p>
-                  <p className="text-xs text-gray-600">Safe Payment</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-gray-800">Verified</p>
-                  <p className="text-xs text-gray-600">Stripe Powered</p>
-                </div>
-              </div>
-            </div> */}
-
             {/* Submit Button */}
             <button
               type="submit"
@@ -159,30 +134,8 @@ const CheckOutForm = () => {
                 </>
               )}
             </button>
-
-            {/* Disclaimer */}
-            {/* <p className="text-xs text-center text-gray-500">
-              By completing this purchase, you agree to our terms and conditions.
-              Your payment information is securely processed by Stripe.
-            </p> */}
           </form>
         </div>
-
-        {/* Trust Badges */}
-        {/* <div className="mt-8 flex items-center justify-center gap-6 flex-wrap">
-          <div className="flex items-center gap-2 text-gray-600">
-            <Shield className="w-5 h-5 text-green-600" />
-            <span className="text-sm font-medium">256-bit SSL Secure</span>
-          </div>
-          <div className="flex items-center gap-2 text-gray-600">
-            <Lock className="w-5 h-5 text-green-600" />
-            <span className="text-sm font-medium">PCI DSS Compliant</span>
-          </div>
-          <div className="flex items-center gap-2 text-gray-600">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-            <span className="text-sm font-medium">Money Back Guarantee</span>
-          </div>
-        </div> */}
       </div>
 
       <style jsx>{`

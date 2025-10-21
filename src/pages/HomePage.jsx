@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { categories } from "../utils/helpers";
 import { getAllProducts } from "../api";
-import { useDispatch, useSelector } from "react-redux";
+import { ClipLoader } from "react-spinners";
+import { Package, ChevronDown } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import SortAndFilter from "../components/SortAndFilter";
-import { ClipLoader } from "react-spinners";
 import {
   setProducts,
   setCategory,
   setSearchKeyword,
 } from "../redux/reducers/productsReducer";
-import { Package, ChevronDown } from "lucide-react";
 import ProductsShimmer from "../components/ProductsShimmer";
 
 const HomePage = () => {
@@ -22,7 +22,7 @@ const HomePage = () => {
   );
   const dispatch = useDispatch();
 
-  const handleGetAllProducts = async (
+  const handleGetAllProducts = useCallback(async (
     sortBy,
     resetFilters,
     searchKeyword,
@@ -44,23 +44,25 @@ const HomePage = () => {
     } catch (error) {
       console.log(`Error fetching products: ${error}`);
     }
-  };
+  } , []);
 
-  const handleSelectedCategories = (categ) => {
+  const handleSelectedCategories = useCallback((categ) => {
     dispatch(setSearchKeyword(""));
     if (category === categ) {
       dispatch(setCategory(""));
     } else {
       dispatch(setCategory(categ));
     }
-  };
+  }, [category]);
 
-  const loadMoreProducts = () => {
+  const loadMoreProducts = useCallback(() => {
     if (hasMoreProds) {
       handleGetAllProducts(sortBy, true, searchKeyword, category, page + 1);
       setPage((prevPage) => prevPage + 1);
     }
-  };
+  }, []);
+
+  console.log(products);
 
   useEffect(() => {
     handleGetAllProducts(sortBy, true, searchKeyword, category, page);
@@ -68,13 +70,6 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
-      {/* Animated Background Elements */}
-      {/* <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-700"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
-      </div> */}
-
       <div className="relative z-10">
         {/* Category Section */}
         <section className="sticky top-16 z-40 bg-white/80 backdrop-blur-lg shadow-md border-b border-green-100">
@@ -98,6 +93,7 @@ const HomePage = () => {
                       <img
                         src={categoryOptions.image}
                         alt={categoryOptions.title}
+                        loading="lazy"
                         className="w-8 h-8 object-contain"
                       />
                     </div>

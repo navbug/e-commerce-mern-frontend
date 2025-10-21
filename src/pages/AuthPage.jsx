@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
@@ -16,14 +16,18 @@ const AuthPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const validationSchema = Yup.object({
+  const validationSchema = useMemo(() => Yup.object({
     email: Yup.string()
       .email("Invalid email address")
       .required("Email is required"),
     password: Yup.string()
       .min(5, "Password must be at least 5 characters")
       .required("Password is required"),
-  });
+  }), []);
+
+  const togglePasswordVisibility = useCallback(() => {
+    setShowPassword(prev => !prev);
+  })
 
   const formik = useFormik({
     initialValues: {
@@ -147,7 +151,7 @@ const AuthPage = () => {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={togglePasswordVisibility}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center hover:scale-110 transition-transform duration-200"
                 >
                   {showPassword ? (

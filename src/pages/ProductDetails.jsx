@@ -1,14 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
-import { FaPencil, FaPlus, FaStar } from "react-icons/fa6";
-import { calculateAverageRating, numWithCommas } from "../utils/helpers";
-import { addProductReview, getProductById, getUserById } from "../api";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Pencil, Plus, Star, Truck } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaShippingFast } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../redux/reducers/cartReducer";
 import moment from "moment";
-import MainSpinner from "../components/MainSpinner";
+import { calculateAverageRating, numWithCommas } from "../utils/helpers";
+import { addProductReview, getProductById, getUserById } from "../api";
+import { addToCart } from "../redux/reducers/cartReducer";
 import ProductDetailsShimmer from "../components/ProductDetailsShimmer";
 
 const ProductDetails = () => {
@@ -29,9 +27,14 @@ const ProductDetails = () => {
     return calculateAverageRating(reviews);
   };
 
-  const handleSubmit = async (e) => {
+  const isInCart = useMemo(() => {
+    return cartItems.some(item => item._id === product?._id)
+  }, [cartItems, product?._id]);
+
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setWriteReview(false);
+    
     try {
       const newReview = {
         userId: user._id,
@@ -46,9 +49,9 @@ const ProductDetails = () => {
       toast.error("Error submitting review:", error);
       console.error("Error submitting review:", error);
     }
-  };
+  }, [productId, rating, user?._id]);
 
-  const getProduct = async () => {
+  const getProduct = useCallback(async () => {
     try {
       const fetchedProduct = await getProductById(productId);
       setProduct(fetchedProduct);
@@ -58,9 +61,9 @@ const ProductDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const getUserInfo = async (id) => {
+  const getUserInfo = useCallback(async (id) => {
     try {
       const { name, avatar } = await getUserById(id);
       if (name && avatar) {
@@ -77,17 +80,17 @@ const ProductDetails = () => {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, []);
 
-  const handleAddToCart = (e, product) => {
+  const handleAddToCart = useCallback((e, product) => {
     e.preventDefault();
-    if (!cartItems.find((item) => item._id === product._id)) {
+    if (!isInCart) {
       dispatch(addToCart(product));
       toast.success(`Added to cart`);
     } else {
       toast.success(`Already in cart`);
     }
-  };
+  }, [isInCart]);
 
   useEffect(() => {
     getProduct();
@@ -130,7 +133,7 @@ const ProductDetails = () => {
                       {/* Rating Badge */}
                       {avgRating > 0 && (
                         <div className="absolute top-6 right-6 flex items-center gap-2 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-xl shadow-lg">
-                          <FaStar className="text-amber-400" size={20} />
+                          <Star className="text-amber-400" size={20} />
                           <span className="text-lg font-bold text-gray-800">
                             {avgRating}
                           </span>
@@ -150,7 +153,7 @@ const ProductDetails = () => {
                         <div className="flex flex-wrap gap-2 mb-4">
                           {product?.fastDelivery && (
                             <span className="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-700 text-sm font-semibold px-3 py-1.5 rounded-lg border border-emerald-200">
-                              <FaShippingFast size={16} />
+                              <Truck size={16} />
                               Fast Delivery
                             </span>
                           )}
@@ -209,7 +212,7 @@ const ProductDetails = () => {
                             onClick={(e) => handleAddToCart(e, product)}
                             className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200"
                           >
-                            <FaPlus size={18} />
+                            <Plus size={18} />
                             <span className="text-lg">Add to Cart</span>
                           </button>
                         ) : (
@@ -223,7 +226,7 @@ const ProductDetails = () => {
                             onClick={() => setWriteReview((prev) => !prev)}
                             className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-semibold px-6 py-4 rounded-xl border-2 border-gray-200 hover:border-emerald-300 active:scale-95 transition-all duration-200"
                           >
-                            <FaPencil size={16} />
+                            <Pencil size={16} />
                             <span>Write a Review</span>
                           </button>
                         )}
@@ -252,7 +255,11 @@ const ProductDetails = () => {
                                     }`}
                                     onClick={() => setRating(value)}
                                   >
-                                    <FaStar />
+                                    <Star fill={`${
+                                      value <= rating
+                                        ? "rgb(251,191,36)"
+                                        : "rgb(255,255,255)"
+                                    }`}/>
                                   </button>
                                 ))}
                               </div>
@@ -286,7 +293,7 @@ const ProductDetails = () => {
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="bg-white rounded-2xl shadow-xl p-6 lg:p-12">
                   <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-                    <FaStar className="text-amber-400" size={28} />
+                    <Star fill="rgb(251,191,36)" className="text-amber-400" size={28} />
                     Customer Reviews
                   </h2>
 
@@ -315,7 +322,8 @@ const ProductDetails = () => {
                             {/* Rating */}
                             <div className="flex gap-0.5">
                               {[...Array(review.rating)].map((_, index) => (
-                                <FaStar
+                                <Star
+                                  fill="rgb(251,191,36)"
                                   key={index}
                                   className="text-amber-400"
                                   size={16}
@@ -325,7 +333,7 @@ const ProductDetails = () => {
                           </div>
 
                           {/* Review Text */}
-                          <div className="bg-white/60 rounded-lg p-4">
+                          <div className="rounded-lg p-4">
                             <p className="text-gray-700 text-sm leading-relaxed">
                               {review.review}
                             </p>
@@ -336,7 +344,7 @@ const ProductDetails = () => {
                   ) : (
                     <div className="text-center py-12">
                       <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-                        <FaStar className="text-gray-400" size={32} />
+                        <Star className="text-gray-400" size={32} />
                       </div>
                       <p className="text-lg font-medium text-gray-600">
                         No reviews yet

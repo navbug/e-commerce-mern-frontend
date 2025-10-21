@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { deleteOrder, getAllOrders } from "../../api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { ClipLoader } from "react-spinners";
 import {
   ShoppingBag,
   Eye,
@@ -13,6 +11,7 @@ import {
   CheckCircle2,
   Receipt,
 } from "lucide-react";
+import { deleteOrder, getAllOrders } from "../../api";
 
 const ManageOrders = () => {
   const [loading, setLoading] = useState(true);

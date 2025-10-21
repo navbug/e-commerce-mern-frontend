@@ -1,14 +1,7 @@
-import React, { useEffect, useState } from "react";
-import {
-  getOrderById,
-  getUserById,
-  processOrder,
-  updateProductStock,
-} from "../api";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { adminIds } from "../utils/helpers";
 import {
   Package,
   User,
@@ -21,6 +14,13 @@ import {
   CreditCard,
   Home,
 } from "lucide-react";
+import {
+  getOrderById,
+  getUserById,
+  processOrder,
+  updateProductStock,
+} from "../api";
+import { adminIds } from "../utils/helpers";
 
 const OrderDetails = () => {
   const [order, setOrder] = useState(null);
@@ -29,16 +29,20 @@ const OrderDetails = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
 
-  const getOrderUserById = async (id) => {
+  const isAdmin = useMemo(() => {
+    return adminIds.includes(user?._id)
+  }, [user]);
+
+  const getOrderUserById = useCallback(async (id) => {
     try {
       const { name } = await getUserById(id);
       setOrderUser(name);
     } catch (error) {
       console.log(error);
     }
-  };
+  }, []);
 
-  const getOrderDetails = async () => {
+  const getOrderDetails = useCallback(async () => {
     try {
       const fetchedOrder = await getOrderById(orderId);
       setOrder(fetchedOrder);
@@ -47,9 +51,9 @@ const OrderDetails = () => {
       console.error("Error fetching order:", error);
       toast.error(`Failed to fetch order`);
     }
-  };
+  }, []);
 
-  const handleProcessOrder = async (orderId, status) => {
+  const handleProcessOrder = useCallback(async (orderId, status) => {
     try {
       let newStatus;
       if (status === "Processing") {
@@ -73,7 +77,7 @@ const OrderDetails = () => {
       console.error("Error processing order:", error);
       toast.error(`Failed to process order`);
     }
-  };
+  }, []);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -201,7 +205,7 @@ const OrderDetails = () => {
                   {order?.status}
                 </div>
 
-                {adminIds.includes(user?._id) && (
+                {isAdmin && (
                   <button
                     disabled={order?.status === "Delivered"}
                     onClick={() => handleProcessOrder(order?._id, order?.status)}

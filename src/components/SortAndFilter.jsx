@@ -1,13 +1,12 @@
-import React, { Fragment, useEffect, useState, useMemo } from "react";
+import React, { Fragment, useEffect, useState, useMemo, memo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Popover, Dialog, Transition } from "@headlessui/react";
-import { FaSort, FaAngleDown, FaCheck, FaFilter } from "react-icons/fa6";
-import { IoClose } from "react-icons/io5";
+import { ArrowDownUp, ChevronDown, Check, Filter, X } from 'lucide-react';
 import { getAllProducts } from "../api";
 import { calculateAverageRating, sortOptions } from "../utils/helpers";
-import { useDispatch, useSelector } from "react-redux";
 import { setProducts, setSortBy } from "../redux/reducers/productsReducer";
 
-const SortAndFilter = ({ page }) => {
+const SortAndFilter = memo(({ page }) => {
   const [filterOpen, setFilterOpen] = useState(false);
   const { products, sortBy, searchKeyword, category } = useSelector(
     (state) => state.products
@@ -111,7 +110,7 @@ const SortAndFilter = ({ page }) => {
           onClick={() => setFilterOpen(true)}
           className="group inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-emerald-200 hover:border-emerald-300 relative"
         >
-          <FaFilter className="text-emerald-600 group-hover:scale-110 transition-transform" />
+          <Filter className="text-emerald-600 group-hover:scale-110 transition-transform" />
           <span className="text-sm font-semibold text-gray-700 group-hover:text-emerald-700">
             Filters
           </span>
@@ -167,7 +166,7 @@ const SortAndFilter = ({ page }) => {
                             onClick={() => setFilterOpen(false)}
                           >
                             <span className="sr-only">Close panel</span>
-                            <IoClose className="h-6 w-6" />
+                            <X className="h-6 w-6" />
                           </button>
                         </div>
                       </Transition.Child>
@@ -176,7 +175,7 @@ const SortAndFilter = ({ page }) => {
                         <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-8">
                           <Dialog.Title className="text-2xl font-bold text-white flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <FaFilter className="text-white/90" />
+                              <Filter className="text-white/90" />
                               Filter Products
                             </div>
                             {activeFiltersCount > 0 && (
@@ -329,11 +328,11 @@ const SortAndFilter = ({ page }) => {
       <div className="right">
         <Popover className="relative">
           <Popover.Button className="group inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-emerald-200 hover:border-emerald-300">
-            <FaSort className="text-emerald-600 group-hover:scale-110 transition-transform" />
+            <ArrowDownUp className="text-emerald-600 group-hover:scale-110 transition-transform" />
             <span className="text-sm font-semibold text-gray-700 group-hover:text-emerald-700">
               Sort by
             </span>
-            <FaAngleDown className="h-4 w-4 text-gray-500" aria-hidden="true" />
+            <ChevronDown className="h-4 w-4 text-gray-500" aria-hidden="true" />
           </Popover.Button>
 
           <Transition
@@ -366,7 +365,7 @@ const SortAndFilter = ({ page }) => {
                         {option.name}
                       </span>
                       {sortBy && option.name === sortBy && (
-                        <FaCheck
+                        <Check
                           className="text-emerald-600"
                           aria-hidden="true"
                         />
@@ -396,6 +395,6 @@ const SortAndFilter = ({ page }) => {
       `}</style>
     </div>
   );
-};
+});
 
 export default SortAndFilter;
