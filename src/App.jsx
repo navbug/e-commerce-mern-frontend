@@ -27,7 +27,7 @@ import { adminIds } from "./utils/helpers";
 import ProtectedRoute from "./components/ProtectedRoute";
 import OfflineBanner from "./components/OfflineBanner";
 import useOnlineStatus from "./hooks/useOnlineStatus";
-import FallbackShimmer from "./components/FallbackShimmer";
+import MainSpinner from "./components/MainSpinner";
 
 function App() {
   //Get user data from Redux store
@@ -53,7 +53,7 @@ function App() {
       <OfflineBanner isOnline={isOnline} />
 
       <Header />
-      <Suspense fallback={<FallbackShimmer />}>
+      <Suspense fallback={<MainSpinner />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route
