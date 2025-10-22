@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
@@ -15,7 +15,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
-  const validationSchema = useMemo(Yup.object({
+  const validationSchema = Yup.object({
     name: Yup.string()
       .min(2, "Name must be at least 2 characters")
       .max(50, "Name must be less than 50 characters")
@@ -31,7 +31,7 @@ const Register = () => {
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Please confirm your password"),
-  }), []);
+  });
 
   const formik = useFormik({
     initialValues: {
