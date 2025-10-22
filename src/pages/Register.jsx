@@ -75,7 +75,7 @@ const Register = () => {
     },
   });
 
-  const handleFileSelect = useCallback((event) => {
+  const handleFileSelect = (event) => {
     event.preventDefault();
     const file = event.target.files[0];
     
@@ -91,14 +91,14 @@ const Register = () => {
       };
       setImage(img);
     }
-  }, []);
+  };
 
-  const handleFileUpload = useCallback(async () => {
+  const handleFileUpload = async () => {
     let formData = new FormData();
     formData.append("file", image.data);
     const res = await axios.post(`${API_BASE_URL}/uploadFile`, formData);
     return res;
-  }, []);
+  };
 
   const removeImage = () => {
     setImage({ preview: "", data: "" });
