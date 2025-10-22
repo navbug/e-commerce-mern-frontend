@@ -20,7 +20,6 @@ const Shipping = lazy(() => import("./pages/Shipping"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 
 import Header from "./components/Header";
-import MainSpinner from "./components/MainSpinner";
 import NotFoundPage from "./pages/NotFoundPage";
 import AdminRoute from "./components/AdminRoute";
 import { setUser } from "./redux/reducers/userReducer";
