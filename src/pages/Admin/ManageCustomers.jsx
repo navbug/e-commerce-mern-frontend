@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { deleteUser, getAllUsers } from "../../api";
 import { adminIds } from "../../utils/helpers";
 import { toast } from "react-toastify";
