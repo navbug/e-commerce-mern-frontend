@@ -1,6 +1,6 @@
 export const adminIds = ["6625f5b8bba83b7de30ea679", "68f114208fe1713a6a5a5960"];
 
-export const Logo = "/src/assets/logo_e.png";
+export const Logo = "https://res.cloudinary.com/dkvbeylph/image/upload/v1761146377/logo_e_wwhgpc.png";
 
 export const categories = [
   {
